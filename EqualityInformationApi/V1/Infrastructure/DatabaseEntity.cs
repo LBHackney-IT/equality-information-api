@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EqualityInformationApi.V1.Infrastructure
 {
-    [DynamoDBTable("Equality Information", LowerCamelCaseProperties = true)]
+    [DynamoDBTable("EqualityInformation", LowerCamelCaseProperties = true)]
     public class DatabaseEntity
     {
         [DynamoDBHashKey]
