@@ -4,19 +4,19 @@ setup:
 
 .PHONY: build
 build:
-	docker-compose build base-api
+	docker-compose build equality-information-api
 
 .PHONY: serve
 serve:
-	docker-compose build base-api && docker-compose up base-api
+	docker-compose build equality-information-api && docker-compose up equality-information-api
 
 .PHONY: shell
 shell:
-	docker-compose run base-api bash
+	docker-compose run equality-information-api bash
 
 .PHONY: test
 test:
-	docker-compose up test-database & docker-compose build base-api-test && docker-compose up base-api-test
+	docker-compose up test-database & docker-compose build equality-information-api-test && docker-compose up equality-information-api-test
 
 .PHONY: lint
 lint:
