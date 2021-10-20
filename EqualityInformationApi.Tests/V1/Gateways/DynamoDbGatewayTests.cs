@@ -1,42 +1,53 @@
 using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
-using EqualityInformationApi.Tests.V1.Helper;
-using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Gateways
 {
-    //TODO: Remove this file if DynamoDb gateway not being used
-    //TODO: Rename Tests to match gateway name
-    //For instruction on how to run tests please see the wiki: https://github.com/LBHackney-IT/lbh-equality-information-api/wiki/Running-the-test-suite.
-    [TestFixture]
-    public class DynamoDbGatewayTests : DynamoDbIntegrationTests<Startup>
+    [Collection("Aws collection")]
+    public class DynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
         private DynamoDbGateway _classUnderTest;
-
+        private readonly List<Action> _cleanup = new List<Action>();
         private Mock<ILogger<DynamoDbGateway>> _logger;
-        private LogCallAspectFixture _logCallAspectFixture;
+        private readonly IDynamoDBContext _dynamoDb;
 
-        [SetUp]
-        public void Setup()
+        public void Dispose()
         {
-            _logCallAspectFixture = new LogCallAspectFixture();
-            _logCallAspectFixture.RunBeforeTests();
-            _logger = new Mock<ILogger<DynamoDbGateway>>();
-            _classUnderTest = new DynamoDbGateway(DynamoDbContext, _logger.Object);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        [Test]
-        [Ignore("Enable if using DynamoDb")]
+        private bool _disposed;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+            {
+                foreach (var action in _cleanup)
+                    action();
 
+                _disposed = true;
+            }
+        }
+
+        public DynamoDbGatewayTests(DynamoDbIntegrationTests<Startup> dbTestFixture)
+        {
+            _logger = new Mock<ILogger<DynamoDbGateway>>();
+            _dynamoDb = dbTestFixture.DynamoDbContext;
+
+            _classUnderTest = new DynamoDbGateway(_dynamoDb, _logger.Object);
+        }
+
+        [Fact]
         public async Task GetEntityByIdReturnsNullIfEntityDoesntExist()
         {
             var response = await _classUnderTest.GetEntityById(123).ConfigureAwait(false);
@@ -46,8 +57,7 @@ namespace EqualityInformationApi.Tests.V1.Gateways
 
         }
 
-        [Test]
-        [Ignore("Enable if using DynamoDb")]
+        [Fact]
         public async Task VerifiesGatewayMethodsAddtoDB()
         {
             var entity = _fixture.Build<DatabaseEntity>()
@@ -61,8 +71,8 @@ namespace EqualityInformationApi.Tests.V1.Gateways
 
         private void InsertDatatoDynamoDB(DatabaseEntity entity)
         {
-            DynamoDbContext.SaveAsync<DatabaseEntity>(entity).GetAwaiter().GetResult();
-            CleanupActions.Add(async () => await DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
+            _dynamoDb.SaveAsync<DatabaseEntity>(entity).GetAwaiter().GetResult();
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity).ConfigureAwait(false));
         }
     }
 }

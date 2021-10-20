@@ -16,7 +16,7 @@ shell:
 
 .PHONY: test
 test:
-	docker-compose up test-database & docker-compose build equality-information-api-test && docker-compose up equality-information-api-test
+	docker-compose build equality-information-api-test && docker-compose up equality-information-api-test
 
 .PHONY: lint
 lint:

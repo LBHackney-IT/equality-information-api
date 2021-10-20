@@ -3,23 +3,17 @@ using EqualityInformationApi.V1.Controllers;
 using EqualityInformationApi.V1.UseCase;
 using EqualityInformationApi.V1.UseCase.Interfaces;
 using Moq;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Controllers
 {
-    [TestFixture]
     public class EqualityInformationApiControllerTests : LogCallAspectFixture
     {
         private EqualityInformationApiController _classUnderTest;
         private Mock<IGetByIdUseCase> _mockGetByIdUseCase;
         private Mock<IGetAllUseCase> _mockGetByAllUseCase;
 
-        [SetUp]
-        public void SetUp()
+        public EqualityInformationApiControllerTests()
         {
             _mockGetByIdUseCase = new Mock<IGetByIdUseCase>();
             _mockGetByAllUseCase = new Mock<IGetAllUseCase>();

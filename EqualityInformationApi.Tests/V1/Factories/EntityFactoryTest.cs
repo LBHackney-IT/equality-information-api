@@ -3,18 +3,17 @@ using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Infrastructure;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Factories
 {
-    [TestFixture]
     public class EntityFactoryTest
     {
         private readonly Fixture _fixture = new Fixture();
 
         //TODO: add assertions for all the fields being mapped in `EntityFactory.ToDomain()`. Also be sure to add test cases for
         // any edge cases that might exist.
-        [Test]
+        [Fact]
         public void CanMapADatabaseEntityToADomainObject()
         {
             var databaseEntity = _fixture.Create<DatabaseEntity>();
@@ -26,7 +25,7 @@ namespace EqualityInformationApi.Tests.V1.Factories
 
         //TODO: add assertions for all the fields being mapped in `EntityFactory.ToDatabase()`. Also be sure to add test cases for
         // any edge cases that might exist.
-        [Test]
+        [Fact]
         public void CanMapADomainEntityToADatabaseObject()
         {
             var entity = _fixture.Create<Entity>();
