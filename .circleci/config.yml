@@ -129,7 +129,7 @@ jobs:
     executor: docker-terraform
     steps:
       - terraform-init-then-apply:
-          environment: "master"
+          environment: "development"
   terraform-init-and-apply-to-staging:
     executor: docker-terraform
     steps:
@@ -144,7 +144,7 @@ jobs:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
-          stage: "master"
+          stage: "development"
           aws-account: $AWS_ACCOUNT_DEVELOPMENT
   deploy-to-staging:
     executor: docker-dotnet
@@ -172,19 +172,19 @@ workflows:
             - build-and-test
           filters:
             branches:
-              only: development
+              only: master
       - terraform-init-and-apply-to-development:
           requires:
             - assume-role-development
           filters:
             branches:
-              only: development
+              only: master
       - deploy-to-development:
           requires:
             - terraform-init-and-apply-to-development
           filters:
             branches:
-              only: development
+              only: master
   check-and-deploy-staging-and-production:
     jobs:
       - build-and-test:
