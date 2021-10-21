@@ -7,7 +7,7 @@ using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.UseCase
 {
@@ -17,15 +17,14 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         private GetAllUseCase _classUnderTest;
         private Fixture _fixture;
 
-        [SetUp]
-        public void SetUp()
+        public GetAllUseCaseTests()
         {
             _mockGateway = new Mock<IExampleDynamoGateway>();
             _classUnderTest = new GetAllUseCase(_mockGateway.Object);
             _fixture = new Fixture();
         }
 
-        [Test]
+        [Fact]
         public void GetsAllFromTheGateway()
         {
             var stubbedEntities = _fixture.CreateMany<Entity>().ToList();

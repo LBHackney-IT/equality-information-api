@@ -1,7 +1,7 @@
 using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.UseCase;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.UseCase
 {
@@ -10,8 +10,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         private Mock<IExampleDynamoGateway> _mockGateway;
         private GetByIdUseCase _classUnderTest;
 
-        [SetUp]
-        public void SetUp()
+        public GetByIdUseCaseTests()
         {
             _mockGateway = new Mock<IExampleDynamoGateway>();
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);

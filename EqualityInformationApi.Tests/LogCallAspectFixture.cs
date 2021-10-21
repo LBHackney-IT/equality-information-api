@@ -2,11 +2,8 @@ using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace EqualityInformationApi.Tests
 {
@@ -14,8 +11,7 @@ namespace EqualityInformationApi.Tests
     {
         public Mock<ILogger<LogCallAspect>> MockLogger { get; private set; }
 
-        [OneTimeSetUp]
-        public void RunBeforeTests()
+        public LogCallAspectFixture()
         {
             MockLogger = SetupLogCallAspect();
         }
@@ -33,4 +29,8 @@ namespace EqualityInformationApi.Tests
             return mockLogger;
         }
     }
+
+    [CollectionDefinition("LogCall collection")]
+    public class LogCallAspectFixtureCollection : ICollectionFixture<LogCallAspectFixture>
+    { }
 }
