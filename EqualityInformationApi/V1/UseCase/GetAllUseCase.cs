@@ -9,8 +9,8 @@ namespace EqualityInformationApi.V1.UseCase
     //TODO: Rename class name and interface name to reflect the entity they are representing eg. GetAllClaimantsUseCase
     public class GetAllUseCase : IGetAllUseCase
     {
-        private readonly IExampleGateway _gateway;
-        public GetAllUseCase(IExampleGateway gateway)
+        private readonly IExampleDynamoGateway _gateway;
+        public GetAllUseCase(IExampleDynamoGateway gateway)
         {
             _gateway = gateway;
         }
