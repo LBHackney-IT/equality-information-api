@@ -13,7 +13,7 @@ provider:
   region: eu-west-2
   apiKeys:
     - secureAccess:
-      - api-key-${self:service}-${self:provider.stage}
+        - api-key-${self:service}-${self:provider.stage}
   usagePlan:
     - secureAccess:
         throttle:
@@ -21,7 +21,6 @@ provider:
           rateLimit: 100
 
 package:
-# TODO: Rename zipfile in build.sh and build.cmd to match this
   artifact: ./bin/release/netcoreapp3.1/equality-information-api.zip
 
 functions:
@@ -30,15 +29,12 @@ functions:
     handler: EqualityInformationApi::EqualityInformationApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
     environment:
-# TODO: Create ssm variables for this API's postgres mirror then rename equality-information-api below to match api name
-# TODO: Remove this line if DynamoDb is being used
-      CONNECTION_STRING: Host=${ssm:/equality-information-api/${self:provider.stage}/postgres-hostname};Port=${ssm:/equality-information-api/${self:provider.stage}/postgres-port};Database=equality-information-api-mirror;Username=${ssm:/equality-information-api/${self:provider.stage}/postgres-username};Password=${ssm:/equality-information-api/${self:provider.stage}/postgres-password}
     events:
       - http:
           path: /{proxy+}
           method: ANY
           cors:
-            origin: '*'
+            origin: "*"
             headers:
               - Content-Type
               - If-Match
@@ -61,7 +57,7 @@ resources:
         Path: /${self:service}/${self:provider.stage}/
         RoleName: ${self:service}-lambdaExecutionRole
         AssumeRolePolicyDocument:
-          Version: '2012-10-17'
+          Version: "2012-10-17"
           Statement:
             - Effect: Allow
               Principal:
@@ -74,7 +70,7 @@ resources:
         Policies:
           - PolicyName: manageLogs
             PolicyDocument:
-              Version: '2012-10-17'
+              Version: "2012-10-17"
               Statement:
                 - Effect: Allow
                   Action:
@@ -82,12 +78,12 @@ resources:
                     - logs:CreateLogStream
                     - logs:PutLogEvents
                   Resource:
-                    - 'Fn::Join':
-                        - ':'
-                        - - 'arn:aws:logs'
-                          - Ref: 'AWS::Region'
-                          - Ref: 'AWS::AccountId'
-                          - 'log-group:/aws/lambda/*:*:*'
+                    - "Fn::Join":
+                        - ":"
+                        - - "arn:aws:logs"
+                          - Ref: "AWS::Region"
+                          - Ref: "AWS::AccountId"
+                          - "log-group:/aws/lambda/*:*:*"
                 - Effect: "Allow"
                   Action:
                     - "s3:PutObject"
@@ -99,7 +95,7 @@ resources:
                         - "Ref": "ServerlessDeploymentBucket"
           - PolicyName: lambdaInvocation
             PolicyDocument:
-              Version: '2012-10-17'
+              Version: "2012-10-17"
               Statement:
                 - Effect: Allow
                   Action:

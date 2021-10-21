@@ -12,7 +12,7 @@ namespace EqualityInformationApi.Tests
         public HttpClient Client { get; private set; }
         public IDynamoDBContext DynamoDbContext => _factory?.DynamoDbContext;
 
-        private readonly AwsMockWebApplicationFactory<TStartup> _factory;
+        private readonly DynamoDbMockWebApplicationFactory<TStartup> _factory;
         private readonly List<TableDef> _tables = new List<TableDef>
         {
             new TableDef { Name = "EqualityInformation", KeyName = "TargetId", KeyType = ScalarAttributeType.S }
@@ -22,9 +22,8 @@ namespace EqualityInformationApi.Tests
         {
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
-            EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
 
-            _factory = new AwsMockWebApplicationFactory<TStartup>(_tables);
+            _factory = new DynamoDbMockWebApplicationFactory<TStartup>(_tables);
             Client = _factory.CreateClient();
         }
 

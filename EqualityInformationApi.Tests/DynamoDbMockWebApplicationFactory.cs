@@ -1,24 +1,23 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
-using EqualityInformationApi.V1.Infrastructure;
-using Hackney.Core.DynamoDb;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
+using Hackney.Core.DynamoDb;
 
 namespace EqualityInformationApi.Tests
 {
     public class DynamoDbMockWebApplicationFactory<TStartup>
-        : WebApplicationFactory<TStartup> where TStartup : class
+            : WebApplicationFactory<TStartup> where TStartup : class
     {
         private readonly List<TableDef> _tables;
 
         public IAmazonDynamoDB DynamoDb { get; private set; }
         public IDynamoDBContext DynamoDbContext { get; private set; }
-
         public DynamoDbMockWebApplicationFactory(List<TableDef> tables)
         {
             _tables = tables;
@@ -30,7 +29,15 @@ namespace EqualityInformationApi.Tests
                 .UseStartup<Startup>();
             builder.ConfigureServices(services =>
             {
-                services.ConfigureDynamoDB();
+                var url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
+
+                services.AddSingleton<IAmazonDynamoDB>(sp =>
+                {
+                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };
+                    return new AmazonDynamoDBClient(clientConfig);
+                });
+
+                services.ConfigureSns();
 
                 var serviceProvider = services.BuildServiceProvider();
                 DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();

@@ -166,6 +166,9 @@ workflows:
           context: api-nuget-token-context
       - build-and-test:
           context: api-nuget-token-context
+          filters:
+            branches:
+              only: master
       - assume-role-development:
           context: api-assume-role-housing-development-context
           requires:
