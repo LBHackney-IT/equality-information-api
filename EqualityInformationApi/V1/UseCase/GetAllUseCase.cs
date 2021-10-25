@@ -16,9 +16,11 @@ namespace EqualityInformationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public Task<GetAllResponseObject> Execute(EqualityInformationQuery query)
+        public async Task<GetAllResponseObject> Execute(EqualityInformationQuery query)
         {
-            throw new System.NotImplementedException();
+            var response = await _gateway.GetAll(query.TargetId).ConfigureAwait(false);
+
+            return response.ToDomain().ToResponse();
         }
     }
 }
