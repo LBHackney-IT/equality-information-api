@@ -13,13 +13,13 @@ namespace EqualityInformationApi.Tests.V1.UseCase
 {
     public class GetAllUseCaseTests : LogCallAspectFixture
     {
-        private Mock<IExampleDynamoGateway> _mockGateway;
+        private Mock<IEqualityInformationGateway> _mockGateway;
         private GetAllUseCase _classUnderTest;
         private Fixture _fixture;
 
         public GetAllUseCaseTests()
         {
-            _mockGateway = new Mock<IExampleDynamoGateway>();
+            _mockGateway = new Mock<IEqualityInformationGateway>();
             _classUnderTest = new GetAllUseCase(_mockGateway.Object);
             _fixture = new Fixture();
         }

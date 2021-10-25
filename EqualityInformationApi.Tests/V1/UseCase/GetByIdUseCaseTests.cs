@@ -7,12 +7,12 @@ namespace EqualityInformationApi.Tests.V1.UseCase
 {
     public class GetByIdUseCaseTests : LogCallAspectFixture
     {
-        private Mock<IExampleDynamoGateway> _mockGateway;
+        private Mock<IEqualityInformationGateway> _mockGateway;
         private GetByIdUseCase _classUnderTest;
 
         public GetByIdUseCaseTests()
         {
-            _mockGateway = new Mock<IExampleDynamoGateway>();
+            _mockGateway = new Mock<IEqualityInformationGateway>();
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 

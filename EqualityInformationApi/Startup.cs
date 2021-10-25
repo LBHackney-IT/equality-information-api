@@ -62,7 +62,7 @@ namespace EqualityInformationApi
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
-            services.AddDynamoDbHealthCheck<DatabaseEntity>();
+            services.AddDynamoDbHealthCheck<EqualityInformationDb>();
 
             services.AddSwaggerGen(c =>
             {
@@ -133,13 +133,15 @@ namespace EqualityInformationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<IExampleDynamoGateway, DynamoDbGateway>();
+            services.AddScoped<IEqualityInformationGateway, EqualityInformationGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetAllUseCase, GetAllUseCase>();
+            services.AddScoped<ICreateUseCase, CreateUseCase>();
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
+            services.AddScoped<IUpdateUseCase, UpdateUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -5,7 +5,7 @@ namespace EqualityInformationApi.V1.Factories
 {
     public static class EntityFactory
     {
-        public static Entity ToDomain(this DatabaseEntity databaseEntity)
+        public static Entity ToDomain(this EqualityInformationDb databaseEntity)
         {
             //TODO: Map the rest of the fields in the domain object.
             // More information on this can be found here https://github.com/LBHackney-IT/lbh-equality-information-api/wiki/Factory-object-mappings
@@ -17,11 +17,11 @@ namespace EqualityInformationApi.V1.Factories
             };
         }
 
-        public static DatabaseEntity ToDatabase(this Entity entity)
+        public static EqualityInformationDb ToDatabase(this Entity entity)
         {
             //TODO: Map the rest of the fields in the database object.
 
-            return new DatabaseEntity
+            return new EqualityInformationDb
             {
                 Id = entity.Id,
                 CreatedAt = entity.CreatedAt

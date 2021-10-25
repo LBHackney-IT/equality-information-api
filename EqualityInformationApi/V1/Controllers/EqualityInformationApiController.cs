@@ -1,56 +1,76 @@
+using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.UseCase.Interfaces;
 using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.Controllers
 {
     [ApiController]
-    //TODO: Rename to match the APIs endpoint
-    [Route("api/v1/residents")]
+    [Route("api/v1/equality-information")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    //TODO: rename class to match the API name
     public class EqualityInformationApiController : BaseController
     {
         private readonly IGetAllUseCase _getAllUseCase;
+        private readonly ICreateUseCase _createUseCase;
         private readonly IGetByIdUseCase _getByIdUseCase;
-        public EqualityInformationApiController(IGetAllUseCase getAllUseCase, IGetByIdUseCase getByIdUseCase)
+        private readonly IUpdateUseCase _updateUseCase;
+        public EqualityInformationApiController(
+            IGetAllUseCase getAllUseCase,
+            ICreateUseCase createUseCase,
+            IGetByIdUseCase getByIdUseCase,
+            IUpdateUseCase updateUseCase)
         {
             _getAllUseCase = getAllUseCase;
+            _createUseCase = createUseCase;
             _getByIdUseCase = getByIdUseCase;
+            _updateUseCase = updateUseCase;
         }
 
-        //TODO: add xml comments containing information that will be included in the auto generated swagger docs (https://github.com/LBHackney-IT/lbh-equality-information-api/wiki/Controllers-and-Response-Objects)
-        /// <summary>
-        /// ...
-        /// </summary>
-        /// <response code="200">...</response>
-        /// <response code="400">Invalid Query Parameter.</response>
-        [ProducesResponseType(typeof(ResponseObjectList), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetAllResponseObject), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
         [LogCall(LogLevel.Information)]
-
-        public IActionResult ListContacts()
+        public async Task<IActionResult> GetAll([FromQuery] EqualityInformationQuery query)
         {
-            return Ok(_getAllUseCase.Execute());
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// ...
-        /// </summary>
-        /// <response code="200">...</response>
-        /// <response code="404">No ? found for the specified ID</response>
-        [ProducesResponseType(typeof(ResponseObject), StatusCodes.Status200OK)]
-        [HttpGet]
+        [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost]
         [LogCall(LogLevel.Information)]
-        //TODO: rename to match the identifier that will be used
-        [Route("{yourId}")]
-        public IActionResult ViewRecord(int yourId)
+        public async Task<IActionResult> Create([FromBody] EqualityInformationObject request)
         {
-            return Ok(_getByIdUseCase.Execute(yourId));
+            throw new NotImplementedException();
+        }
+
+        [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpGet]
+        [Route("{id}")]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> GetById([FromQuery] GetByIdQuery query)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpGet]
+        [Route("{id}")]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> Update([FromQuery] UpdateQualityInformationQuery query, [FromBody] EqualityInformationObject request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

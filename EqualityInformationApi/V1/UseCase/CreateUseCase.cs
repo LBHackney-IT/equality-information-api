@@ -1,22 +1,23 @@
-using System;
-using System.Threading.Tasks;
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.UseCase.Interfaces;
-using Hackney.Core.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.UseCase
 {
-    public class GetByIdUseCase : IGetByIdUseCase
+    public class CreateUseCase : ICreateUseCase
     {
-        private IEqualityInformationGateway _gateway;
-        public GetByIdUseCase(IEqualityInformationGateway gateway)
+        private readonly IEqualityInformationGateway _gateway;
+        public CreateUseCase(IEqualityInformationGateway gateway)
         {
             _gateway = gateway;
         }
 
-        public Task<EqualityInformationResponseObject> Execute(GetByIdQuery query)
+        public Task<EqualityInformationResponseObject> Execute(EqualityInformationObject request)
         {
             throw new NotImplementedException();
         }
