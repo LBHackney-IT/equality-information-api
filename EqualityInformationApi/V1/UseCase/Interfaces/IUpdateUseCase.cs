@@ -9,6 +9,6 @@ namespace EqualityInformationApi.V1.UseCase.Interfaces
 {
     public interface IUpdateUseCase
     {
-        Task<GetAllResponseObject> Execute(UpdateQualityInformationQuery query, EqualityInformationObject request);
+        Task<EqualityInformationResponseObject> Execute(UpdateQualityInformationQuery query, EqualityInformationObject request, string requestBody);
     }
 }

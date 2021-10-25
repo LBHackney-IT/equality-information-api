@@ -1,5 +1,7 @@
 using System.Linq;
+using System.Threading.Tasks;
 using AutoFixture;
+using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
@@ -8,14 +10,18 @@ using EqualityInformationApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
 using Xunit;
+using System;
+using EqualityInformationApi.V1.Infrastructure;
+using System.Collections.Generic;
 
 namespace EqualityInformationApi.Tests.V1.UseCase
 {
     public class GetAllUseCaseTests : LogCallAspectFixture
     {
-        private Mock<IEqualityInformationGateway> _mockGateway;
-        private GetAllUseCase _classUnderTest;
-        private Fixture _fixture;
+        private readonly Mock<IEqualityInformationGateway> _mockGateway;
+        private readonly GetAllUseCase _classUnderTest;
+        private readonly Fixture _fixture;
+        private readonly Random _random = new Random();
 
         public GetAllUseCaseTests()
         {
@@ -25,16 +31,43 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         }
 
         [Fact]
-        public void GetsAllFromTheGateway()
+        public async Task WhenNoEntitiesReturnsEmptyList()
         {
-            var stubbedEntities = _fixture.CreateMany<Entity>().ToList();
-            _mockGateway.Setup(x => x.GetAll()).Returns(stubbedEntities);
+            // Arrange
+            var query = _fixture.Create<EqualityInformationQuery>();
 
-            var expectedResponse = new ResponseObjectList { ResponseObjects = stubbedEntities.ToResponse() };
+            _mockGateway
+                .Setup(x => x.GetAll(It.IsAny<Guid>()))
+                .ReturnsAsync(new List<EqualityInformationDb>());
 
-            _classUnderTest.Execute().Should().BeEquivalentTo(expectedResponse);
+            // Act
+            var response = await _classUnderTest.Execute(query).ConfigureAwait(false);
+
+            // Assert
+            response.EqualityData.Should().HaveCount(0);
         }
 
-        //TODO: Add extra tests here for extra functionality added to the use case
+        [Fact]
+        public async Task WhenManyEntitiesExistReturnsMany()
+        {
+            // Arrange
+            var query = _fixture.Create<EqualityInformationQuery>();
+            var numberOfEntities = _random.Next(2, 5);
+
+            var gatewayResponse = _fixture
+                .Build<EqualityInformationDb>()
+                .CreateMany(numberOfEntities)
+                .ToList();
+
+            _mockGateway
+                .Setup(x => x.GetAll(It.IsAny<Guid>()))
+                .ReturnsAsync(gatewayResponse);
+
+            // Act
+            var response = await _classUnderTest.Execute(query).ConfigureAwait(false);
+
+            // Assert
+            response.EqualityData.Should().HaveCount(numberOfEntities);
+        }
     }
 }

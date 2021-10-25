@@ -1,5 +1,6 @@
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
+using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.UseCase.Interfaces;
 using System;
@@ -17,9 +18,11 @@ namespace EqualityInformationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public Task<EqualityInformationResponseObject> Execute(EqualityInformationObject request)
+        public async Task<EqualityInformationResponseObject> Execute(EqualityInformationObject request)
         {
-            throw new NotImplementedException();
+            var response = await _gateway.Create(request).ConfigureAwait(false);
+
+            return response.ToDomain().ToResponse();
         }
     }
 }
