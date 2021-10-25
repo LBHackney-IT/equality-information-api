@@ -37,7 +37,7 @@ namespace EqualityInformationApi.Tests
                     return new AmazonDynamoDBClient(clientConfig);
                 });
 
-                services.ConfigureSns();
+                services.ConfigureDynamoDB();
 
                 var serviceProvider = services.BuildServiceProvider();
                 DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();
@@ -57,6 +57,11 @@ namespace EqualityInformationApi.Tests
                         new List<KeySchemaElement> { new KeySchemaElement(table.KeyName, KeyType.HASH) },
                         new List<AttributeDefinition> { new AttributeDefinition(table.KeyName, table.KeyType) },
                         new ProvisionedThroughput(3, 3));
+
+                    // add range keys
+                    request.KeySchema.Add(new KeySchemaElement(table.RangeKeyName, KeyType.RANGE));
+                    request.AttributeDefinitions.Add(new AttributeDefinition(table.RangeKeyName, table.RangeKeyType));
+
                     _ = dynamoDb.CreateTableAsync(request).GetAwaiter().GetResult();
                 }
                 catch (ResourceInUseException)

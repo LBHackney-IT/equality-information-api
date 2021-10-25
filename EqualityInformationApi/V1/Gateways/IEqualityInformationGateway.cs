@@ -13,6 +13,6 @@ namespace EqualityInformationApi.V1.Gateways
         Task<List<EqualityInformationDb>> GetAll(Guid targetId);
         Task<EqualityInformationDb> GetById(Guid id, Guid targetId);
         Task<EqualityInformationDb> Create(EqualityInformationObject request);
-        Task<EqualityInformationDb> Update(Guid id, EqualityInformationObject request);
+        Task<EqualityInformationDb> Update(Guid id, EqualityInformationObject request, string requestObject);
     }
 }

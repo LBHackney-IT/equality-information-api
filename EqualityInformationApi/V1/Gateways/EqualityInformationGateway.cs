@@ -7,6 +7,7 @@ using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.Gateways
@@ -15,32 +16,80 @@ namespace EqualityInformationApi.V1.Gateways
     {
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<EqualityInformationGateway> _logger;
+        private readonly IEntityUpdater _updater;
 
-
-        public EqualityInformationGateway(IDynamoDBContext dynamoDbContext, ILogger<EqualityInformationGateway> logger)
+        public EqualityInformationGateway(
+            IDynamoDBContext dynamoDbContext,
+            IEntityUpdater updater,
+            ILogger<EqualityInformationGateway> logger)
         {
             _dynamoDbContext = dynamoDbContext;
+            _updater = updater;
             _logger = logger;
         }
 
-        public Task<EqualityInformationDb> Create(EqualityInformationObject request)
+        [LogCall]
+        public async Task<EqualityInformationDb> Create(EqualityInformationObject request)
         {
-            throw new NotImplementedException();
+            var entity = request.ToDomain().ToDatabase();
+
+            await SaveEntity(entity).ConfigureAwait(false);
+
+            return entity;
         }
 
-        public Task<List<EqualityInformationDb>> GetAll(Guid targetId)
+        [LogCall]
+        public async Task<List<EqualityInformationDb>> GetAll(Guid targetId)
         {
-            throw new NotImplementedException();
+            var directoryList = new List<EqualityInformationDb>();
+
+            _logger.LogDebug($"Calling IDynamoDBContext.QueryAsync for {targetId}");
+
+            var search = _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId);
+
+            do
+            {
+                var newDirectorys = await search.GetNextSetAsync().ConfigureAwait(false);
+                directoryList.AddRange(newDirectorys);
+
+            } while (search.IsDone == false);
+
+            return directoryList;
         }
 
-        public Task<EqualityInformationDb> GetById(Guid id, Guid targetId)
+        [LogCall]
+        public async Task<EqualityInformationDb> GetById(Guid id, Guid targetId)
         {
-            throw new NotImplementedException();
+            return await LoadEntity(targetId, id).ConfigureAwait(false);
         }
 
-        public Task<EqualityInformationDb> Update(Guid id, EqualityInformationObject request)
+        [LogCall]
+        public async Task<EqualityInformationDb> Update(Guid id, EqualityInformationObject request, string requestBody)
         {
-            throw new NotImplementedException();
+            var existingEntity = await LoadEntity(request.TargetId, id).ConfigureAwait(false);
+            if (existingEntity == null) return null;
+
+            var result = _updater.UpdateEntity(existingEntity, requestBody, request);
+            if (result.NewValues.Any())
+            {
+                await SaveEntity(result.UpdatedEntity).ConfigureAwait(false);
+            }
+
+            return result.UpdatedEntity;
+        }
+
+        private async Task SaveEntity(EqualityInformationDb entity)
+        {
+            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for {entity.TargetId}.{entity.Id}");
+
+            await _dynamoDbContext.SaveAsync<EqualityInformationDb>(entity).ConfigureAwait(false);
+        }
+
+        private async Task<EqualityInformationDb> LoadEntity(Guid targetId, Guid id)
+        {
+            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {targetId}.{id}");
+
+            return await _dynamoDbContext.LoadAsync<EqualityInformationDb>(targetId, id).ConfigureAwait(false);
         }
     }
 }
