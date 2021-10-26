@@ -35,8 +35,4 @@
     <ProjectReference Include="..\EqualityInformationApi\EqualityInformationApi.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="V1\E2ETests\" />
-  </ItemGroup>
-
 </Project>

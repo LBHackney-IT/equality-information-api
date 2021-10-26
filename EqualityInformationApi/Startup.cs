@@ -29,9 +29,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Hackney.Core.Middleware;
-
-
-
+using Hackney.Core.JWT;
+using Hackney.Core.Http;
+using System.Text.Json.Serialization;
+using Amazon.XRay.Recorder.Core;
+using Amazon;
 
 namespace EqualityInformationApi
 {
@@ -53,9 +55,18 @@ namespace EqualityInformationApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+
             services
                 .AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddFluentValidation();
+
             services.AddApiVersioning(o =>
             {
                 o.DefaultApiVersion = new ApiVersion(1, 0);
@@ -130,9 +141,16 @@ namespace EqualityInformationApi
 
             services.ConfigureLambdaLogging(Configuration);
 
+            AWSXRayRecorder.InitializeInstance(Configuration);
+            AWSXRayRecorder.RegisterLogger(LoggingOptions.SystemDiagnostics);
+
             services.AddLogCallAspect();
 
             services.ConfigureDynamoDB();
+            services.AddTokenFactory();
+            services.AddHttpContextWrapper();
+
+            services.AddScoped<IEntityUpdater, EntityUpdater>();
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -160,17 +178,20 @@ namespace EqualityInformationApi
                 .AllowAnyMethod()
                 .WithExposedHeaders("x-correlation-id"));
 
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseHsts();
+            }
+
+
             app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
-
-            if (env.IsDevelopment())
-                app.UseDeveloperExceptionPage();
-            else
-                app.UseHsts();
-
             app.UseXRay("equality-information-api");
-
             app.EnableRequestBodyRewind();
 
             //Get All ApiVersions,
@@ -185,6 +206,7 @@ namespace EqualityInformationApi
                     c.SwaggerEndpoint($"{apiVersionDescription.GetFormattedApiVersion()}/swagger.json",
                         $"{ApiName}-api {apiVersionDescription.GetFormattedApiVersion()}");
             });
+
             app.UseSwagger();
             app.UseRouting();
             app.UseEndpoints(endpoints =>

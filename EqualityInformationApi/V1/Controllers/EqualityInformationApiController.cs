@@ -76,7 +76,7 @@ namespace EqualityInformationApi.V1.Controllers
         [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpGet]
+        [HttpPatch]
         [Route("{id}")]
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> Update([FromQuery] UpdateEqualityInformationQuery query, [FromBody] EqualityInformationObject request)

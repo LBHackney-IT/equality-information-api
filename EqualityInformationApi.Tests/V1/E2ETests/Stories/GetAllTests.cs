@@ -14,17 +14,18 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         IWant = "an endpoint to return person details",
         SoThat = "it is possible to view the details of a person")]
     [Collection("Aws collection")]
-    public class GetByIdTests : IDisposable
+    public class GetAllTests : IDisposable
     {
         private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
         private readonly EqualityInformationFixture _fixture;
-        private readonly GetByIdSteps _steps;
+        private readonly GetAllSteps _steps;
+        private readonly Random _random = new Random();
 
-        public GetByIdTests(DynamoDbIntegrationTests<Startup> dbFixture)
+        public GetAllTests(DynamoDbIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
             _fixture = new EqualityInformationFixture(_dbFixture.DynamoDbContext);
-            _steps = new GetByIdSteps(_dbFixture.Client);
+            _steps = new GetAllSteps(_dbFixture.Client);
         }
 
         public void Dispose()
@@ -47,50 +48,39 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             }
         }
 
+
         [Fact]
-        public void ServiceReturnsNotFoundIfEntityDoesntExist()
+        public void ServiceReturnsOkWhenNoEntitiesExist()
         {
-            var id = Guid.NewGuid();
             var targetId = Guid.NewGuid();
 
             this.Given(g => _fixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(id.ToString(), targetId.ToString()))
-                .Then(t => _steps.ThenNotFoundIsReturned())
+                .When(w => _steps.WhenTheApiIsCalled(targetId.ToString()))
+                .Then(t => _steps.ThenOkResponseIsReturned())
+                .And(t => _steps.AndNoEntitiesReturned())
                 .BDDfy();
         }
 
         [Fact]
-        public void ServiceReturnBadRequestIfIdInvalid()
+        public void ServiceReturnsOkWhenManyEntitiesExist()
         {
-            var id = "aaa";
             var targetId = Guid.NewGuid();
+            var numberOfEntities = _random.Next(2, 5);
 
-            this.Given(g => _fixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(id, targetId.ToString()))
-                .Then(t => _steps.ThenBadRequestIsReturned())
-                .BDDfy();
-        }
-
-        [Fact]
-        public void ServiceReturnBadRequestIfIdEmpty()
-        {
-            var id = Guid.Empty;
-            var targetId = Guid.NewGuid();
-
-            this.Given(g => _fixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(id.ToString(), targetId.ToString()))
-                .Then(t => _steps.ThenBadRequestIsReturned())
+            this.Given(g => _fixture.GivenManyEntitiesExist(numberOfEntities, targetId))
+                .When(w => _steps.WhenTheApiIsCalled(targetId.ToString()))
+                .Then(t => _steps.ThenOkResponseIsReturned())
+                .And(t => _steps.AndManyEntitiesReturned(numberOfEntities))
                 .BDDfy();
         }
 
         [Fact]
         public void ServiceReturnBadRequestIfTargetIdInvalid()
         {
-            var id = Guid.NewGuid();
             var targetId = "aaa";
 
             this.Given(g => _fixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(id.ToString(), targetId))
+                .When(w => _steps.WhenTheApiIsCalled(targetId))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .BDDfy();
         }
@@ -98,21 +88,11 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServiceReturnBadRequestIfTargetIdEmpty()
         {
-            var id = Guid.NewGuid();
             var targetId = Guid.Empty;
 
             this.Given(g => _fixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(id.ToString(), targetId.ToString()))
+                .When(w => _steps.WhenTheApiIsCalled(targetId.ToString()))
                 .Then(t => _steps.ThenBadRequestIsReturned())
-                .BDDfy();
-        }
-
-        [Fact]
-        public void ServiceReturnOkWhenEntityExists()
-        {
-            this.Given(g => _fixture.GivenAnEntityExists())
-                .When(w => _steps.WhenTheApiIsCalled(_fixture.Entity.Id.ToString(), _fixture.Entity.TargetId.ToString()))
-                .Then(t => _steps.ThenTheEntityIsReturned(_fixture.Entity))
                 .BDDfy();
         }
     }
