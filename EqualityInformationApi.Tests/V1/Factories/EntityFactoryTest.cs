@@ -13,7 +13,6 @@ namespace EqualityInformationApi.Tests.V1.Factories
     public class EntityFactoryTest
     {
         private readonly Fixture _fixture = new Fixture();
-        private readonly Random _random = new Random();
 
         [Fact]
         public void EqualityInformationDbToDomain()
@@ -44,49 +43,6 @@ namespace EqualityInformationApi.Tests.V1.Factories
             response.ArmedForces.Should().Be(entity.ArmedForces);
         }
 
-        [Fact]
-        public void EqualityInformationObjectToDomain()
-        {
-            // Arrange
-            var entity = _fixture.Create<EqualityInformationObject>();
-            var id = Guid.NewGuid();
-
-            // Act
-            var response = entity.ToDomain(id);
-
-            // Assert
-            response.Id.Should().Be(id);
-
-            response.TargetId.Should().Be(entity.TargetId);
-            response.Gender.Should().Be(entity.Gender);
-            response.Nationality.Should().Be(entity.Nationality);
-            response.Ethnicity.Should().Be(entity.Ethnicity);
-            response.ReligionOrBelief.Should().Be(entity.ReligionOrBelief);
-            response.SexualOrientation.Should().Be(entity.SexualOrientation);
-            response.MarriageOrCivilPartnership.Should().Be(entity.MarriageOrCivilPartnership);
-            response.PregnancyOrMaternity.Should().BeEquivalentTo(entity.PregnancyOrMaternity);
-            response.NationalInsuranceNumber.Should().Be(entity.NationalInsuranceNumber);
-            response.Languages.Should().BeEquivalentTo(entity.Languages);
-            response.CaringResponsibilities.Should().Be(entity.CaringResponsibilities);
-            response.Disabled.Should().Be(entity.Disabled);
-            response.CommunicationRequirements.Should().BeEquivalentTo(entity.CommunicationRequirements);
-            response.EconomicSituation.Should().Be(entity.EconomicSituation);
-            response.HomeSituation.Should().Be(entity.HomeSituation);
-            response.ArmedForces.Should().Be(entity.ArmedForces);
-        }
-
-        [Fact]
-        public void EqualityInformationObjectToDomainCreatesNewIdWhenNull()
-        {
-            // Arrange
-            var entity = _fixture.Create<EqualityInformationObject>();
-
-            // Act
-            var response = entity.ToDomain();
-
-            // Assert
-            response.Id.Should().NotBeEmpty();
-        }
 
         [Fact]
         public void EqualityInformationToDatabase()
@@ -115,22 +71,6 @@ namespace EqualityInformationApi.Tests.V1.Factories
             response.EconomicSituation.Should().Be(domain.EconomicSituation);
             response.HomeSituation.Should().Be(domain.HomeSituation);
             response.ArmedForces.Should().Be(domain.ArmedForces);
-        }
-
-        [Fact]
-        public void EqualityInformationDbListToDomain()
-        {
-            // Arrange
-            var numberOfEntities = _random.Next(2, 5);
-            var entity = _fixture
-                .CreateMany<EqualityInformationDb>(numberOfEntities)
-                .ToList();
-
-            // Act
-            var response = entity.ToDomain().ToList();
-
-            // Assert
-            response.Should().BeEquivalentTo(entity);
         }
     }
 }

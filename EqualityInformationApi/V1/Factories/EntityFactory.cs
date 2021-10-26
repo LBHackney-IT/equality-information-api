@@ -10,11 +10,11 @@ namespace EqualityInformationApi.V1.Factories
 {
     public static class EntityFactory
     {
-        public static EqualityInformation ToDomain(this EqualityInformationObject request, Guid? id = null)
+        public static EqualityInformation ToDomain(this EqualityInformationObject request)
         {
             return new EqualityInformation
             {
-                Id = id ?? Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 TargetId = request.TargetId,
                 Gender = request.Gender,
                 Nationality = request.Nationality,
@@ -82,9 +82,5 @@ namespace EqualityInformationApi.V1.Factories
             };
         }
 
-        public static IEnumerable<EqualityInformation> ToDomain(this IEnumerable<EqualityInformationDb> entity)
-        {
-            return entity.Select(x => x.ToDomain());
-        }
     }
 }

@@ -150,8 +150,6 @@ namespace EqualityInformationApi
             services.AddTokenFactory();
             services.AddHttpContextWrapper();
 
-            services.AddScoped<IEntityUpdater, EntityUpdater>();
-
             RegisterGateways(services);
             RegisterUseCases(services);
         }
@@ -163,10 +161,7 @@ namespace EqualityInformationApi
 
         private static void RegisterUseCases(IServiceCollection services)
         {
-            services.AddScoped<IGetAllUseCase, GetAllUseCase>();
             services.AddScoped<ICreateUseCase, CreateUseCase>();
-            services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
-            services.AddScoped<IUpdateUseCase, UpdateUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -192,7 +187,6 @@ namespace EqualityInformationApi
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
             app.UseXRay("equality-information-api");
-            app.EnableRequestBodyRewind();
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();

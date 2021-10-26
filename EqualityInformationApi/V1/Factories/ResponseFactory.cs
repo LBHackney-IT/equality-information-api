@@ -31,13 +31,5 @@ namespace EqualityInformationApi.V1.Factories
                 ArmedForces = domain.ArmedForces
             };
         }
-
-        public static GetAllResponseObject ToResponse(this IEnumerable<EqualityInformation> domain)
-        {
-            return new GetAllResponseObject
-            {
-                EqualityData = domain.Select(x => x.ToResponse()).ToList()
-            };
-        }
     }
 }

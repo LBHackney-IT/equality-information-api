@@ -12,7 +12,6 @@ namespace EqualityInformationApi.Tests.V1.Factories
     public class ResponseFactoryTest
     {
         private readonly Fixture _fixture = new Fixture();
-        private readonly Random _random = new Random();
 
         [Fact]
         public void EqualityInformationToResponse()
@@ -41,22 +40,6 @@ namespace EqualityInformationApi.Tests.V1.Factories
             response.EconomicSituation.Should().Be(domain.EconomicSituation);
             response.HomeSituation.Should().Be(domain.HomeSituation);
             response.ArmedForces.Should().Be(domain.ArmedForces);
-        }
-
-        [Fact]
-        public void EqualityInformationListToResponse()
-        {
-            // Arrange
-            var numberOfEntities = _random.Next(2, 5);
-            var domain = _fixture
-                .CreateMany<EqualityInformation>(numberOfEntities)
-                .ToList();
-
-            // Act
-            var response = domain.ToResponse();
-
-            // Assert
-            response.EqualityData.Should().BeEquivalentTo(domain);
         }
     }
 }
