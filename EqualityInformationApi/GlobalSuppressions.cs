@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "<Pending>", Scope = "member", Target = "~M:EqualityInformationApi.V1.Infrastructure.StringExtensions.ToCamelCase(System.String)~System.String")]
+[assembly: SuppressMessage("Usage", "CA2234:Pass system uri objects instead of strings", Justification = "<Pending>", Scope = "member", Target = "~M:EqualityInformationApi.V1.Controllers.EqualityInformationApiController.Create(EqualityInformationApi.V1.Boundary.Request.EqualityInformationObject)~System.Threading.Tasks.Task{Microsoft.AspNetCore.Mvc.IActionResult}")]

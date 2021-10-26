@@ -1,41 +1,45 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using EqualityInformationApi.V1.Controllers;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.UseCase;
 using EqualityInformationApi.V1.UseCase.Interfaces;
 using EqualityInformationApi.Versioning;
+using Hackney.Core.DynamoDb;
+using Hackney.Core.DynamoDb.HealthCheck;
+using Hackney.Core.HealthCheck;
+using Hackney.Core.Logging;
+using Hackney.Core.Middleware.CorrelationId;
+using Hackney.Core.Middleware.Logging;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Diagnostics.CodeAnalysis;
-using Hackney.Core.Logging;
-using Hackney.Core.Middleware.Logging;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Hackney.Core.HealthCheck;
-using Hackney.Core.Middleware.CorrelationId;
-using Hackney.Core.DynamoDb.HealthCheck;
-using Hackney.Core.DynamoDb;
+using Hackney.Core.Middleware;
+
+
+
 
 namespace EqualityInformationApi
 {
     [ExcludeFromCodeCoverage]
     public class Startup
     {
+        private const string ApiName = "Equality Information Api";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -45,7 +49,6 @@ namespace EqualityInformationApi
 
         public IConfiguration Configuration { get; }
         private static List<ApiVersionDescription> _apiVersions { get; set; }
-        private const string ApiName = "Equality Information Api";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -56,8 +59,10 @@ namespace EqualityInformationApi
             services.AddApiVersioning(o =>
             {
                 o.DefaultApiVersion = new ApiVersion(1, 0);
-                o.AssumeDefaultVersionWhenUnspecified = true; // assume that the caller wants the default version if they don't specify
-                o.ApiVersionReader = new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
+                o.AssumeDefaultVersionWhenUnspecified =
+                    true; // assume that the caller wants the default version if they don't specify
+                o.ApiVersionReader =
+                    new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
             });
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
@@ -70,7 +75,7 @@ namespace EqualityInformationApi
                     new OpenApiSecurityScheme
                     {
                         In = ParameterLocation.Header,
-                        Description = "Your Hackney API Key",
+                        Description = "Equality Information API",
                         Name = "X-Api-Key",
                         Type = SecuritySchemeType.ApiKey
                     });
@@ -80,7 +85,7 @@ namespace EqualityInformationApi
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Token" }
+                            Reference = new OpenApiReference {Type = ReferenceType.SecurityScheme, Id = "Token"}
                         },
                         new List<string>()
                     }
@@ -105,12 +110,14 @@ namespace EqualityInformationApi
                 foreach (var apiVersion in _apiVersions)
                 {
                     var version = $"v{apiVersion.ApiVersion.ToString()}";
-                    c.SwaggerDoc(version, new OpenApiInfo
-                    {
-                        Title = $"{ApiName}-api {version}",
-                        Version = version,
-                        Description = $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
-                    });
+                    c.SwaggerDoc(version,
+                        new OpenApiInfo
+                        {
+                            Title = $"{ApiName}-api {version}",
+                            Version = version,
+                            Description =
+                                $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
+                        });
                 }
 
                 c.CustomSchemaIds(x => x.FullName);
@@ -148,26 +155,23 @@ namespace EqualityInformationApi
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             app.UseCors(builder => builder
-                  .AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .WithExposedHeaders("x-correlation-id"));
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .WithExposedHeaders("x-correlation-id"));
 
             app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
 
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
             else
-            {
                 app.UseHsts();
-            }
 
             app.UseXRay("equality-information-api");
 
+            app.EnableRequestBodyRewind();
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
@@ -177,11 +181,9 @@ namespace EqualityInformationApi
             app.UseSwaggerUI(c =>
             {
                 foreach (var apiVersionDescription in _apiVersions)
-                {
                     //Create a swagger endpoint for each swagger version
                     c.SwaggerEndpoint($"{apiVersionDescription.GetFormattedApiVersion()}/swagger.json",
                         $"{ApiName}-api {apiVersionDescription.GetFormattedApiVersion()}");
-                }
             });
             app.UseSwagger();
             app.UseRouting();
@@ -190,10 +192,8 @@ namespace EqualityInformationApi
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 
-                endpoints.MapHealthChecks("/api/v1/healthcheck/ping", new HealthCheckOptions()
-                {
-                    ResponseWriter = HealthCheckResponseWriter.WriteResponse
-                });
+                endpoints.MapHealthChecks("/api/v1/healthcheck/ping",
+                    new HealthCheckOptions { ResponseWriter = HealthCheckResponseWriter.WriteResponse });
             });
             app.UseLogCall();
         }
