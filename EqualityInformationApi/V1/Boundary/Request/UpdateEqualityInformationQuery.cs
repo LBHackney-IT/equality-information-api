@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.Boundary.Request
 {
-    public class UpdateQualityInformationQuery
+    public class UpdateEqualityInformationQuery
     {
         [FromRoute(Name = "id")]
         public Guid Id { get; set; }

@@ -79,7 +79,7 @@ namespace EqualityInformationApi.V1.Controllers
         [HttpGet]
         [Route("{id}")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> Update([FromQuery] UpdateQualityInformationQuery query, [FromBody] EqualityInformationObject request)
+        public async Task<IActionResult> Update([FromQuery] UpdateEqualityInformationQuery query, [FromBody] EqualityInformationObject request)
         {
             var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
 

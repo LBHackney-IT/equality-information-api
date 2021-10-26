@@ -152,11 +152,11 @@ namespace EqualityInformationApi.Tests.V1.Controllers
         public async Task UpdateWhenEntityDoesntExistReturnsNotFoundResponse()
         {
             // Arrange
-            var query = _fixture.Create<UpdateQualityInformationQuery>();
+            var query = _fixture.Create<UpdateEqualityInformationQuery>();
             var request = _fixture.Create<EqualityInformationObject>();
 
             _mockUpdateUseCase
-                .Setup(x => x.Execute(It.IsAny<UpdateQualityInformationQuery>(), It.IsAny<EqualityInformationObject>(), It.IsAny<string>()))
+                .Setup(x => x.Execute(It.IsAny<UpdateEqualityInformationQuery>(), It.IsAny<EqualityInformationObject>(), It.IsAny<string>()))
                 .ReturnsAsync((EqualityInformationResponseObject) null);
 
             // Act
@@ -172,13 +172,13 @@ namespace EqualityInformationApi.Tests.V1.Controllers
         public async Task UpdateWhenEntityExistsReturnsOkResponse()
         {
             // Arrange
-            var query = _fixture.Create<UpdateQualityInformationQuery>();
+            var query = _fixture.Create<UpdateEqualityInformationQuery>();
             var request = _fixture.Create<EqualityInformationObject>();
 
             var useCaseResponse = _fixture.Create<EqualityInformationResponseObject>();
 
             _mockUpdateUseCase
-                .Setup(x => x.Execute(It.IsAny<UpdateQualityInformationQuery>(), It.IsAny<EqualityInformationObject>(), It.IsAny<string>()))
+                .Setup(x => x.Execute(It.IsAny<UpdateEqualityInformationQuery>(), It.IsAny<EqualityInformationObject>(), It.IsAny<string>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act

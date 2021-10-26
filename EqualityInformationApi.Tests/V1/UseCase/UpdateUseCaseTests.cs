@@ -31,7 +31,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         {
             // Arrange
             var request = _fixture.Create<EqualityInformationObject>();
-            var query = _fixture.Create<UpdateQualityInformationQuery>();
+            var query = _fixture.Create<UpdateEqualityInformationQuery>();
             var requestBody = "";
 
             _mockGateway
@@ -50,7 +50,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         {
             // Arrange
             var request = _fixture.Create<EqualityInformationObject>();
-            var query = _fixture.Create<UpdateQualityInformationQuery>();
+            var query = _fixture.Create<UpdateEqualityInformationQuery>();
             var requestBody = "";
 
             var gatewayResponse = _fixture.Create<EqualityInformationDb>();

@@ -18,7 +18,7 @@ namespace EqualityInformationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public async Task<EqualityInformationResponseObject> Execute(UpdateQualityInformationQuery query, EqualityInformationObject request, string requestBody)
+        public async Task<EqualityInformationResponseObject> Execute(UpdateEqualityInformationQuery query, EqualityInformationObject request, string requestBody)
         {
             var response = await _gateway.Update(query.Id, request, requestBody).ConfigureAwait(false);
 
