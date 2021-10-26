@@ -1,7 +1,10 @@
 using EqualityInformationApi.V1.Boundary.Request;
+using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Infrastructure;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EqualityInformationApi.V1.Factories
 {
@@ -53,6 +56,35 @@ namespace EqualityInformationApi.V1.Factories
                 HomeSituation = domain.HomeSituation,
                 ArmedForces = domain.ArmedForces
             };
+        }
+
+        public static EqualityInformation ToDomain(this EqualityInformationDb entity)
+        {
+            return new EqualityInformation
+            {
+                Id = entity.Id,
+                TargetId = entity.TargetId,
+                Gender = entity.Gender,
+                Nationality = entity.Nationality,
+                Ethnicity = entity.Ethnicity,
+                ReligionOrBelief = entity.ReligionOrBelief,
+                SexualOrientation = entity.SexualOrientation,
+                MarriageOrCivilPartnership = entity.MarriageOrCivilPartnership,
+                PregnancyOrMaternity = entity.PregnancyOrMaternity,
+                NationalInsuranceNumber = entity.NationalInsuranceNumber,
+                Languages = entity.Languages,
+                CaringResponsibilities = entity.CaringResponsibilities,
+                Disabled = entity.Disabled,
+                CommunicationRequirements = entity.CommunicationRequirements,
+                EconomicSituation = entity.EconomicSituation,
+                HomeSituation = entity.HomeSituation,
+                ArmedForces = entity.ArmedForces
+            };
+        }
+
+        public static IEnumerable<EqualityInformation> ToDomain(this IEnumerable<EqualityInformationDb> entity)
+        {
+            return entity.Select(x => x.ToDomain());
         }
     }
 }

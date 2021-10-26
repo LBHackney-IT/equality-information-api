@@ -8,30 +8,6 @@ namespace EqualityInformationApi.V1.Factories
 {
     public static class ResponseFactory
     {
-        public static EqualityInformation ToDomain(this EqualityInformationDb entity)
-        {
-            return new EqualityInformation
-            {
-                Id = entity.Id,
-                TargetId = entity.TargetId,
-                Gender = entity.Gender,
-                Nationality = entity.Nationality,
-                Ethnicity = entity.Ethnicity,
-                ReligionOrBelief = entity.ReligionOrBelief,
-                SexualOrientation = entity.SexualOrientation,
-                MarriageOrCivilPartnership = entity.MarriageOrCivilPartnership,
-                PregnancyOrMaternity = entity.PregnancyOrMaternity,
-                NationalInsuranceNumber = entity.NationalInsuranceNumber,
-                Languages = entity.Languages,
-                CaringResponsibilities = entity.CaringResponsibilities,
-                Disabled = entity.Disabled,
-                CommunicationRequirements = entity.CommunicationRequirements,
-                EconomicSituation = entity.EconomicSituation,
-                HomeSituation = entity.HomeSituation,
-                ArmedForces = entity.ArmedForces
-            };
-        }
-
         public static EqualityInformationResponseObject ToResponse(this EqualityInformation domain)
         {
             return new EqualityInformationResponseObject
@@ -54,11 +30,6 @@ namespace EqualityInformationApi.V1.Factories
                 HomeSituation = domain.HomeSituation,
                 ArmedForces = domain.ArmedForces
             };
-        }
-
-        public static IEnumerable<EqualityInformation> ToDomain(this IEnumerable<EqualityInformationDb> entity)
-        {
-            return entity.Select(x => x.ToDomain());
         }
 
         public static GetAllResponseObject ToResponse(this IEnumerable<EqualityInformation> domain)
