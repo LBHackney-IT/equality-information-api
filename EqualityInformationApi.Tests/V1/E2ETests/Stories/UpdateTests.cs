@@ -13,8 +13,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
 {
     [Story(
         AsA = "Service",
-        IWant = "an endpoint to return person details",
-        SoThat = "it is possible to view the details of a person")]
+        IWant = "an endpoint to update equality information",
+        SoThat = "customer equality information is kept up to date")]
     [Collection("Aws collection")]
     public class UpdateTests : IDisposable
     {

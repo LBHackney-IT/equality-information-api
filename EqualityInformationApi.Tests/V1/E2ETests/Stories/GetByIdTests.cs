@@ -11,8 +11,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
 {
     [Story(
         AsA = "Service",
-        IWant = "an endpoint to return person details",
-        SoThat = "it is possible to view the details of a person")]
+        IWant = "an endpoint to return equality information details",
+        SoThat = "it is possible to view the equality information of a person")]
     [Collection("Aws collection")]
     public class GetByIdTests : IDisposable
     {
