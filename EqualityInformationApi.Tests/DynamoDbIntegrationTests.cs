@@ -15,7 +15,13 @@ namespace EqualityInformationApi.Tests
         private readonly DynamoDbMockWebApplicationFactory<TStartup> _factory;
         private readonly List<TableDef> _tables = new List<TableDef>
         {
-            new TableDef { Name = "EqualityInformation", KeyName = "TargetId", KeyType = ScalarAttributeType.S }
+            new TableDef {
+                Name = "EqualityInformation",
+                KeyName = "targetId",
+                KeyType = ScalarAttributeType.S,
+                RangeKeyName = "id",
+                RangeKeyType = ScalarAttributeType.S
+            }
         };
 
         public DynamoDbIntegrationTests()
@@ -56,6 +62,8 @@ namespace EqualityInformationApi.Tests
         public string Name { get; set; }
         public string KeyName { get; set; }
         public ScalarAttributeType KeyType { get; set; }
+        public string RangeKeyName { get; set; }
+        public ScalarAttributeType RangeKeyType { get; set; }
     }
 
     [CollectionDefinition("Aws collection", DisableParallelization = true)]
