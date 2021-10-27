@@ -1,5 +1,8 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
+using Hackney.Core.Sns;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -7,12 +10,16 @@ using Xunit;
 
 namespace EqualityInformationApi.Tests
 {
-    public class DynamoDbIntegrationTests<TStartup> : IDisposable where TStartup : class
+    public class AWSIntegrationTests<TStartup> : IDisposable where TStartup : class
     {
         public HttpClient Client { get; private set; }
         public IDynamoDBContext DynamoDbContext => _factory?.DynamoDbContext;
 
-        private readonly DynamoDbMockWebApplicationFactory<TStartup> _factory;
+        public IAmazonSimpleNotificationService SimpleNotificationService => _factory?.SimpleNotificationService;
+
+        public SnsEventVerifier<EntityEventSns> SnsVerifer { get; private set; }
+
+        private readonly AWSMockWebApplicationFactory<TStartup> _factory;
         private readonly List<TableDef> _tables = new List<TableDef>
         {
             new TableDef {
@@ -24,13 +31,17 @@ namespace EqualityInformationApi.Tests
             }
         };
 
-        public DynamoDbIntegrationTests()
+        public AWSIntegrationTests()
         {
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
+            EnsureEnvVarConfigured("Sns_LocalMode", "true");
+            EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
 
-            _factory = new DynamoDbMockWebApplicationFactory<TStartup>(_tables);
+            _factory = new AWSMockWebApplicationFactory<TStartup>(_tables);
             Client = _factory.CreateClient();
+
+            CreateSnsTopic();
         }
 
         public void Dispose()
@@ -50,6 +61,23 @@ namespace EqualityInformationApi.Tests
             }
         }
 
+        private void CreateSnsTopic()
+        {
+            var snsAttrs = new Dictionary<string, string>();
+            snsAttrs.Add("fifo_topic", "true");
+            snsAttrs.Add("content_based_deduplication", "true");
+
+            var response = SimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
+            {
+                Name = "equalityInformation",
+                Attributes = snsAttrs
+            }).Result;
+
+            Environment.SetEnvironmentVariable("EQUALITY_INFORMATION_SNS_ARN", response.TopicArn);
+
+            SnsVerifer = new SnsEventVerifier<EntityEventSns>(_factory.AmazonSQS, SimpleNotificationService, response.TopicArn);
+        }
+
         private static void EnsureEnvVarConfigured(string name, string defaultValue)
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
@@ -67,7 +95,7 @@ namespace EqualityInformationApi.Tests
     }
 
     [CollectionDefinition("Aws collection", DisableParallelization = true)]
-    public class DynamoDbCollection : ICollectionFixture<DynamoDbIntegrationTests<Startup>>
+    public class DynamoDbCollection : ICollectionFixture<AWSIntegrationTests<Startup>>
     {
         // This class has no code, and is never created. Its purpose is simply
         // to be the place to apply [CollectionDefinition] and all the

@@ -7,6 +7,8 @@ using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.UseCase;
 using FluentAssertions;
+using Hackney.Core.JWT;
+using Hackney.Core.Sns;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -20,13 +22,24 @@ namespace EqualityInformationApi.Tests.V1.UseCase
     public class CreateUseCaseTests
     {
         private readonly Mock<IEqualityInformationGateway> _mockGateway;
+        private readonly Mock<ISnsGateway> _mockSnsGateway;
+        private readonly Mock<ISnsFactory> _mockSnsFactory;
+
+
         private readonly CreateUseCase _classUnderTest;
         private readonly Fixture _fixture;
 
         public CreateUseCaseTests()
         {
             _mockGateway = new Mock<IEqualityInformationGateway>();
-            _classUnderTest = new CreateUseCase(_mockGateway.Object);
+            _mockSnsGateway = new Mock<ISnsGateway>();
+            _mockSnsFactory = new Mock<ISnsFactory>();
+
+            _classUnderTest = new CreateUseCase(
+                _mockGateway.Object,
+                _mockSnsGateway.Object,
+                _mockSnsFactory.Object);
+
             _fixture = new Fixture();
         }
 
@@ -35,6 +48,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         {
             // Arrange
             var request = _fixture.Create<EqualityInformationObject>();
+            var token = new Token();
 
             var gatewayResponse = _fixture.Create<EqualityInformation>();
 
@@ -43,10 +57,12 @@ namespace EqualityInformationApi.Tests.V1.UseCase
                 .ReturnsAsync(gatewayResponse);
 
             // Act
-            var response = await _classUnderTest.Execute(request).ConfigureAwait(false);
+            var response = await _classUnderTest.Execute(request, token).ConfigureAwait(false);
 
             // Assert
             response.Should().BeEquivalentTo(gatewayResponse);
+
+            _mockSnsGateway.Verify(x => x.Publish(It.IsAny<EntityEventSns>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
     }
 }

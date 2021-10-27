@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.11.0" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.2.57" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.1.29" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Hackney.Core.DynamoDb" Version="1.30.0" />
     <PackageReference Include="Hackney.Core.HealthCheck" Version="1.30.0" />

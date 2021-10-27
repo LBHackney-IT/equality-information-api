@@ -18,17 +18,17 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
     [Collection("Aws collection")]
     public class CreateTests : IDisposable
     {
-        private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
+        private readonly AWSIntegrationTests<Startup> _dbFixture;
         private readonly EqualityInformationFixture _testFixture;
         private readonly CreateSteps _steps;
         private readonly Fixture _fixture = new Fixture();
 
         private const string StringWithTags = "Some string with <tag> in it.";
 
-        public CreateTests(DynamoDbIntegrationTests<Startup> dbFixture)
+        public CreateTests(AWSIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
-            _testFixture = new EqualityInformationFixture(_dbFixture.DynamoDbContext);
+            _testFixture = new EqualityInformationFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
             _steps = new CreateSteps(_dbFixture.Client);
         }
 
@@ -84,6 +84,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
                 .When(w => _steps.WhenTheApiIsCalled(request))
                 .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
+                .And(t => _steps.ThenTheEqualityInformationCreatedEventIsRaised(_testFixture, _dbFixture.SnsVerifer))
                 .BDDfy();
         }
     }
