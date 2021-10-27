@@ -1,4 +1,6 @@
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 using AutoFixture;
 using EqualityInformationApi.V1.Infrastructure;
 using System;
@@ -10,15 +12,16 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 {
     public class EqualityInformationFixture : IDisposable
     {
-        private readonly Fixture _fixture = new Fixture();
         public IDynamoDBContext DbContext { get; private set; }
+        private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
 
         public EqualityInformationDb Entity { get; private set; }
         public List<EqualityInformationDb> Entities { get; private set; } = new List<EqualityInformationDb>();
 
-        public EqualityInformationFixture(IDynamoDBContext context)
+        public EqualityInformationFixture(IDynamoDBContext context, IAmazonSimpleNotificationService amazonSimpleNotificationService)
         {
             DbContext = context;
+            _amazonSimpleNotificationService = amazonSimpleNotificationService;
         }
 
         public void Dispose()
@@ -51,31 +54,22 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenAnEntityDoesNotExist()
         {
-            //
+            CreateSnsTopic();
         }
 
-        public void GivenAnEntityExists()
+        private void CreateSnsTopic()
         {
-            var entity = _fixture.Create<EqualityInformationDb>();
+            var snsAttrs = new Dictionary<string, string>();
+            snsAttrs.Add("fifo_topic", "true");
+            snsAttrs.Add("content_based_deduplication", "true");
 
-            DbContext.SaveAsync(entity).GetAwaiter().GetResult();
-
-            Entity = entity;
-        }
-
-        public void GivenManyEntitiesExist(int numberOfEntities, Guid targetId)
-        {
-            var entities = _fixture
-                .Build<EqualityInformationDb>()
-                .With(x => x.TargetId, targetId)
-                .CreateMany(numberOfEntities);
-
-            Entities = entities.ToList();
-
-            foreach (var entity in entities)
+            var response = _amazonSimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
             {
-                DbContext.SaveAsync(entity).GetAwaiter().GetResult();
-            }
+                Name = "equalityInformation",
+                Attributes = snsAttrs
+            }).Result;
+
+            Environment.SetEnvironmentVariable("EQUALITY_INFORMATION_SNS_ARN", response.TopicArn);
         }
     }
 }

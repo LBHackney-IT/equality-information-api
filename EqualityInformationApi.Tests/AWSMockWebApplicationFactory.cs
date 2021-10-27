@@ -8,17 +8,22 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Hackney.Core.DynamoDb;
+using Amazon.SimpleNotificationService;
+using Amazon.SQS;
 
 namespace EqualityInformationApi.Tests
 {
-    public class DynamoDbMockWebApplicationFactory<TStartup>
+    public class AWSMockWebApplicationFactory<TStartup>
             : WebApplicationFactory<TStartup> where TStartup : class
     {
         private readonly List<TableDef> _tables;
 
         public IAmazonDynamoDB DynamoDb { get; private set; }
         public IDynamoDBContext DynamoDbContext { get; private set; }
-        public DynamoDbMockWebApplicationFactory(List<TableDef> tables)
+        public IAmazonSimpleNotificationService SimpleNotificationService { get; private set; }
+        public IAmazonSQS AmazonSQS { get; private set; }
+
+        public AWSMockWebApplicationFactory(List<TableDef> tables)
         {
             _tables = tables;
         }
@@ -27,6 +32,7 @@ namespace EqualityInformationApi.Tests
         {
             builder.ConfigureAppConfiguration(b => b.AddEnvironmentVariables())
                 .UseStartup<Startup>();
+
             builder.ConfigureServices(services =>
             {
                 var url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
@@ -38,10 +44,15 @@ namespace EqualityInformationApi.Tests
                 });
 
                 services.ConfigureDynamoDB();
+                services.ConfigureSns();
 
                 var serviceProvider = services.BuildServiceProvider();
                 DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();
                 DynamoDbContext = serviceProvider.GetRequiredService<IDynamoDBContext>();
+                SimpleNotificationService = serviceProvider.GetRequiredService<IAmazonSimpleNotificationService>();
+
+                var localstackUrl = Environment.GetEnvironmentVariable("Localstack_SnsServiceUrl");
+                AmazonSQS = new AmazonSQSClient(new AmazonSQSConfig() { ServiceURL = localstackUrl });
 
                 EnsureTablesExist(DynamoDb, _tables);
             });

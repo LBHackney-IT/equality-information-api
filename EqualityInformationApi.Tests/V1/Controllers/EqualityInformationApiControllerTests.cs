@@ -4,6 +4,8 @@ using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Controllers;
 using EqualityInformationApi.V1.UseCase.Interfaces;
 using FluentAssertions;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -23,13 +25,22 @@ namespace EqualityInformationApi.Tests.V1.Controllers
         private readonly EqualityInformationApiController _equalityController;
         private readonly Mock<ICreateUseCase> _mockCreateUseCase;
 
+        private readonly Mock<ITokenFactory> _mockTokenFactory;
+        private readonly Mock<IHttpContextWrapper> _mockContextWrapper;
+
         private readonly Fixture _fixture = new Fixture();
 
         public EqualityInformationApiControllerTests()
         {
             _mockCreateUseCase = new Mock<ICreateUseCase>();
 
-            _equalityController = new EqualityInformationApiController(_mockCreateUseCase.Object);
+            _mockTokenFactory = new Mock<ITokenFactory>();
+            _mockContextWrapper = new Mock<IHttpContextWrapper>();
+
+            _equalityController = new EqualityInformationApiController(
+                _mockCreateUseCase.Object,
+                _mockTokenFactory.Object,
+                _mockContextWrapper.Object);
         }
 
         [Fact]
@@ -41,7 +52,7 @@ namespace EqualityInformationApi.Tests.V1.Controllers
             var useCaseResponse = _fixture.Create<EqualityInformationResponseObject>();
 
             _mockCreateUseCase
-              .Setup(x => x.Execute(It.IsAny<EqualityInformationObject>()))
+              .Setup(x => x.Execute(It.IsAny<EqualityInformationObject>(), It.IsAny<Token>()))
               .ReturnsAsync(useCaseResponse);
 
             // Act

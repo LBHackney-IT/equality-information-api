@@ -35,6 +35,8 @@ using Amazon.XRay.Recorder.Core;
 using Amazon;
 using Hackney.Core.Validation.AspNet;
 using EqualityInformationApi.V1.Boundary.Request.Validation;
+using Hackney.Core.Sns;
+using EqualityInformationApi.V1.Factories;
 
 namespace EqualityInformationApi
 {
@@ -148,11 +150,26 @@ namespace EqualityInformationApi
             services.AddLogCallAspect();
 
             services.ConfigureDynamoDB();
+
+            Hackney.Core.Sns.SnsInitilisationExtensions.ConfigureSns(services);
+
             services.AddTokenFactory();
             services.AddHttpContextWrapper();
 
+
+            services.AddScoped<ISnsFactory, SnsFactory>();
+
             RegisterGateways(services);
             RegisterUseCases(services);
+
+            ConfigureHackneyCoreDI(services);
+        }
+
+        private static void ConfigureHackneyCoreDI(IServiceCollection services)
+        {
+            services.AddSnsGateway()
+                .AddTokenFactory()
+                .AddHttpContextWrapper();
         }
 
         private static void RegisterGateways(IServiceCollection services)

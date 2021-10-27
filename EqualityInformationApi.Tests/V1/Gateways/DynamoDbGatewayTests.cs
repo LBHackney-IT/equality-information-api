@@ -23,7 +23,7 @@ namespace EqualityInformationApi.Tests.V1.Gateways
         private Mock<ILogger<EqualityInformationGateway>> _logger;
         private readonly IDynamoDBContext _dynamoDb;
 
-        public DynamoDbGatewayTests(DynamoDbIntegrationTests<Startup> dbTestFixture)
+        public DynamoDbGatewayTests(AWSIntegrationTests<Startup> dbTestFixture)
         {
             _logger = new Mock<ILogger<EqualityInformationGateway>>();
             _dynamoDb = dbTestFixture.DynamoDbContext;
