@@ -10,15 +10,15 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 {
     public class EqualityInformationFixture : IDisposable
     {
-        public readonly Fixture _fixture = new Fixture();
-        public readonly IDynamoDBContext _dbContext;
+        private readonly Fixture _fixture = new Fixture();
+        public IDynamoDBContext DbContext { get; private set; }
 
         public EqualityInformationDb Entity { get; private set; }
         public List<EqualityInformationDb> Entities { get; private set; } = new List<EqualityInformationDb>();
 
         public EqualityInformationFixture(IDynamoDBContext context)
         {
-            _dbContext = context;
+            DbContext = context;
         }
 
         public void Dispose()
@@ -34,14 +34,14 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
             {
                 if (null != Entity)
                 {
-                    _dbContext.DeleteAsync<EqualityInformationDb>(Entity.TargetId, Entity.Id).GetAwaiter().GetResult();
+                    DbContext.DeleteAsync<EqualityInformationDb>(Entity.TargetId, Entity.Id).GetAwaiter().GetResult();
                 }
 
                 if (Entities.Count != 0)
                 {
                     foreach (var entity in Entities)
                     {
-                        _dbContext.DeleteAsync<EqualityInformationDb>(entity.TargetId, entity.Id).GetAwaiter().GetResult();
+                        DbContext.DeleteAsync<EqualityInformationDb>(entity.TargetId, entity.Id).GetAwaiter().GetResult();
                     }
                 }
 
@@ -58,7 +58,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
         {
             var entity = _fixture.Create<EqualityInformationDb>();
 
-            _dbContext.SaveAsync(entity).GetAwaiter().GetResult();
+            DbContext.SaveAsync(entity).GetAwaiter().GetResult();
 
             Entity = entity;
         }
@@ -70,9 +70,11 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
                 .With(x => x.TargetId, targetId)
                 .CreateMany(numberOfEntities);
 
+            Entities = entities.ToList();
+
             foreach (var entity in entities)
             {
-                _dbContext.SaveAsync(entity).GetAwaiter().GetResult();
+                DbContext.SaveAsync(entity).GetAwaiter().GetResult();
             }
         }
     }

@@ -26,7 +26,7 @@ namespace EqualityInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<EqualityInformationDb> Create(EqualityInformationObject request)
+        public async Task<EqualityInformation> Create(EqualityInformationObject request)
         {
             var entity = request.ToDomain().ToDatabase();
 
@@ -34,7 +34,7 @@ namespace EqualityInformationApi.V1.Gateways
 
             await _dynamoDbContext.SaveAsync(entity).ConfigureAwait(false);
 
-            return entity;
+            return entity.ToDomain();
         }
     }
 }

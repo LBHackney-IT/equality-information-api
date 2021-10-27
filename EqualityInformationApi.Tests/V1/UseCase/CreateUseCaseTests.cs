@@ -1,6 +1,7 @@
 using AutoFixture;
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
+using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
@@ -15,7 +16,8 @@ using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.UseCase
 {
-    public class CreateUseCaseTests : LogCallAspectFixture
+    [Collection("LogCall collection")]
+    public class CreateUseCaseTests
     {
         private readonly Mock<IEqualityInformationGateway> _mockGateway;
         private readonly CreateUseCase _classUnderTest;
@@ -34,7 +36,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
             // Arrange
             var request = _fixture.Create<EqualityInformationObject>();
 
-            var gatewayResponse = _fixture.Create<EqualityInformationDb>();
+            var gatewayResponse = _fixture.Create<EqualityInformation>();
 
             _mockGateway
                 .Setup(x => x.Create(It.IsAny<EqualityInformationObject>()))

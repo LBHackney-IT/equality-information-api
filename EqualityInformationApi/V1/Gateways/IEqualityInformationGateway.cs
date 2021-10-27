@@ -10,6 +10,6 @@ namespace EqualityInformationApi.V1.Gateways
 {
     public interface IEqualityInformationGateway
     {
-        Task<EqualityInformationDb> Create(EqualityInformationObject request);
+        Task<EqualityInformation> Create(EqualityInformationObject request);
     }
 }

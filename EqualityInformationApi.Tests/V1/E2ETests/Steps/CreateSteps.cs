@@ -20,7 +20,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
         public CreateSteps(HttpClient httpClient) : base(httpClient)
         { }
 
-        public void WhenTheApiIsCalled(EqualityInformationObject request)
+        public async Task WhenTheApiIsCalled(EqualityInformationObject request)
         {
             var uri = new Uri($"api/v1/equality-information/", UriKind.Relative);
 
@@ -33,7 +33,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
                 .Accept
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            _lastResponse = _httpClient.SendAsync(message).GetAwaiter().GetResult();
+            _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
 
             message.Dispose();
         }
@@ -43,13 +43,13 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
-        public void ThenTheEntityIsReturned(IDynamoDBContext databaseContext)
+        public async Task ThenTheEntityIsReturned(IDynamoDBContext databaseContext)
         {
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
             var responseContent = DecodeResponse<EqualityInformationResponseObject>(_lastResponse);
 
-            var databaseResponse = databaseContext.LoadAsync<EqualityInformationDb>(responseContent.TargetId, responseContent.Id).GetAwaiter().GetResult();
+            var databaseResponse = await databaseContext.LoadAsync<EqualityInformationDb>(responseContent.TargetId, responseContent.Id).ConfigureAwait(false);
 
             databaseResponse.Should().BeEquivalentTo(responseContent);
         }

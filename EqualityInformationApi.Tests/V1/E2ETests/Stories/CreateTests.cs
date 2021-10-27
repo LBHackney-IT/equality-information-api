@@ -83,7 +83,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
                 .When(w => _steps.WhenTheApiIsCalled(request))
-                .Then(t => _steps.ThenTheEntityIsReturned(_testFixture._dbContext))
+                .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
                 .BDDfy();
         }
     }

@@ -28,12 +28,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Hackney.Core.Middleware;
 using Hackney.Core.JWT;
 using Hackney.Core.Http;
 using System.Text.Json.Serialization;
 using Amazon.XRay.Recorder.Core;
 using Amazon;
+using Hackney.Core.Validation.AspNet;
+using EqualityInformationApi.V1.Boundary.Request.Validation;
 
 namespace EqualityInformationApi
 {
@@ -65,7 +66,7 @@ namespace EqualityInformationApi
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddFluentValidation();
+            services.AddFluentValidation(Assembly.GetAssembly(typeof(EqualityInformationObjectValidator)));
 
             services.AddApiVersioning(o =>
             {
@@ -181,7 +182,6 @@ namespace EqualityInformationApi
             {
                 app.UseHsts();
             }
-
 
             app.UseCorrelationId();
             app.UseLoggingScope();

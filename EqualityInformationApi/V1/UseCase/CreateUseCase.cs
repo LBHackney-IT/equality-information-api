@@ -22,7 +22,7 @@ namespace EqualityInformationApi.V1.UseCase
         {
             var response = await _gateway.Create(request).ConfigureAwait(false);
 
-            return response.ToDomain().ToResponse();
+            return response.ToResponse();
         }
     }
 }
