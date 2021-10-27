@@ -21,6 +21,7 @@ namespace EqualityInformationApi.V1.Boundary.Request.Validation
             RuleFor(x => x.SexualOrientation).SetValidator(new SexualOrientationValidator());
             RuleForEach(x => x.PregnancyOrMaternity).SetValidator(new PregnancyOrMaternityValidator());
             RuleForEach(x => x.Languages).SetValidator(new LanguageValidator());
+            RuleFor(x => x.MarriageOrCivilPartnership).SetValidator(new MarriageOrCivilPartnershipValidator());
             RuleFor(x => x.CaringResponsibilities).SetValidator(new CaringResponsibilitiesValidator());
             RuleFor(x => x.EconomicSituation).SetValidator(new EconomicSituationValidator());
             RuleFor(x => x.HomeSituation).SetValidator(new HomeSituationValidator());
@@ -39,6 +40,9 @@ namespace EqualityInformationApi.V1.Boundary.Request.Validation
                 .WithErrorCode(ErrorCodes.XssCheckFailure);
 
             RuleFor(x => x.ArmedForces).NotXssString()
+                .WithErrorCode(ErrorCodes.XssCheckFailure);
+
+            RuleFor(x => x.Disabled).NotXssString()
                 .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
     }

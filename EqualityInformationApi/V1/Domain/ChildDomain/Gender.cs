@@ -9,6 +9,6 @@ namespace EqualityInformationApi.V1.Domain
     {
         public string GenderValue { get; set; }
         public string GenderValueIfOther { get; set; }
-        public bool? GenderDifferentToBirthSex { get; set; } = null;
+        public string GenderDifferentToBirthSex { get; set; }
     }
 }

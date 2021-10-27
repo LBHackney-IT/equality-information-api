@@ -7,7 +7,7 @@ namespace EqualityInformationApi.V1.Domain
 {
     public class MarriageOrCivilPartnership
     {
-        public bool? Married { get; set; } = null;
-        public bool? CivilPartnership { get; set; } = null;
+        public string Married { get; set; }
+        public string CivilPartnership { get; set; }
     }
 }

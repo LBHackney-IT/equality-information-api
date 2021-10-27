@@ -20,7 +20,7 @@ namespace EqualityInformationApi.V1.Domain
         public string NationalInsuranceNumber { get; set; }
         public List<Languages> Languages { get; set; }
         public CaringResponsibilities CaringResponsibilities { get; set; }
-        public bool? Disabled { get; set; } = null;
+        public string Disabled { get; set; }
         public List<string> CommunicationRequirements { get; set; }
         public EconomicSituation EconomicSituation { get; set; }
         public HomeSituation HomeSituation { get; set; }

@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.Boundary.Request.Validation
 {
-    public class CaringResponsibilitiesValidator : AbstractValidator<CaringResponsibilities>
+    public class MarriageOrCivilPartnershipValidator : AbstractValidator<MarriageOrCivilPartnership>
     {
-        public CaringResponsibilitiesValidator()
+        public MarriageOrCivilPartnershipValidator()
         {
-            RuleFor(x => x.HoursSpentProvidingUnpaidCare).NotXssString()
+            RuleFor(x => x.Married).NotXssString()
                 .WithErrorCode(ErrorCodes.XssCheckFailure);
 
-            RuleFor(x => x.ProvideUnpaidCare).NotXssString()
+            RuleFor(x => x.CivilPartnership).NotXssString()
                 .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
     }
