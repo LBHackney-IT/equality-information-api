@@ -51,7 +51,7 @@ resource "aws_sns_topic" "equalityInformation" {
 }
 
 resource "aws_ssm_parameter" "equality_information_sns_arn" {
-  name  = "/sns-topic/development/equalityInformation/arn"
+  name  = "/sns-topic/staging/equalityInformation/arn"
   type  = "String"
   value = aws_sns_topic.equalityInformation.arn
 }

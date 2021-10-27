@@ -54,22 +54,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenAnEntityDoesNotExist()
         {
-            CreateSnsTopic();
-        }
-
-        private void CreateSnsTopic()
-        {
-            var snsAttrs = new Dictionary<string, string>();
-            snsAttrs.Add("fifo_topic", "true");
-            snsAttrs.Add("content_based_deduplication", "true");
-
-            var response = _amazonSimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
-            {
-                Name = "equalityInformation",
-                Attributes = snsAttrs
-            }).Result;
-
-            Environment.SetEnvironmentVariable("EQUALITY_INFORMATION_SNS_ARN", response.TopicArn);
+            //
         }
     }
 }
