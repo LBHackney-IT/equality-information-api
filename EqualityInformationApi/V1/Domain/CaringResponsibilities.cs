@@ -7,7 +7,7 @@ namespace EqualityInformationApi.V1.Domain
 {
     public class CaringResponsibilities
     {
-        public bool ProvideUnpaidCare { get; set; }
+        public bool? ProvideUnpaidCare { get; set; } = null;
         public string HoursSpentProvidingUnpaidCare { get; set; }
     }
 }

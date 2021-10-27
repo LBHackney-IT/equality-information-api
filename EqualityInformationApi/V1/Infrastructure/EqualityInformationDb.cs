@@ -50,7 +50,7 @@ namespace EqualityInformationApi.V1.Infrastructure
         public CaringResponsibilities CaringResponsibilities { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbBoolConverter))]
-        public bool Disabled { get; set; }
+        public bool? Disabled { get; set; } = null;
 
         [DynamoDBProperty]
         public List<string> CommunicationRequirements { get; set; }
