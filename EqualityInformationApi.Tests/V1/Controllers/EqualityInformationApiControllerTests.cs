@@ -17,7 +17,8 @@ using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Controllers
 {
-    public class EqualityInformationApiControllerTests : LogCallAspectFixture
+    [Collection("LogCall collection")]
+    public class EqualityInformationApiControllerTests
     {
         private readonly EqualityInformationApiController _equalityController;
         private readonly Mock<ICreateUseCase> _mockCreateUseCase;
