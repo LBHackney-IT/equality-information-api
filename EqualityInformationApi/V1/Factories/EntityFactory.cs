@@ -16,6 +16,7 @@ namespace EqualityInformationApi.V1.Factories
             {
                 Id = Guid.NewGuid(),
                 TargetId = request.TargetId,
+                AgeGroup = request.AgeGroup,
                 Gender = request.Gender,
                 Nationality = request.Nationality,
                 Ethnicity = request.Ethnicity,
@@ -40,6 +41,7 @@ namespace EqualityInformationApi.V1.Factories
             {
                 Id = domain.Id,
                 TargetId = domain.TargetId,
+                AgeGroup = domain.AgeGroup,
                 Gender = domain.Gender,
                 Nationality = domain.Nationality,
                 Ethnicity = domain.Ethnicity,
@@ -64,6 +66,7 @@ namespace EqualityInformationApi.V1.Factories
             {
                 Id = entity.Id,
                 TargetId = entity.TargetId,
+                AgeGroup = entity.AgeGroup,
                 Gender = entity.Gender,
                 Nationality = entity.Nationality,
                 Ethnicity = entity.Ethnicity,

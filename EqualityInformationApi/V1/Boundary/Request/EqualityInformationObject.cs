@@ -9,6 +9,7 @@ namespace EqualityInformationApi.V1.Boundary.Request
     public class EqualityInformationObject
     {
         public Guid TargetId { get; set; }
+        public string AgeGroup { get; set; }
         public Gender Gender { get; set; }
         public string Nationality { get; set; }
         public Ethnicity Ethnicity { get; set; }

@@ -16,6 +16,9 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBRangeKey]
         public Guid Id { get; set; }
 
+        [DynamoDBProperty]
+        public string AgeGroup { get; set; }
+
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Gender>))]
         public Gender Gender { get; set; }
 

@@ -14,6 +14,7 @@ namespace EqualityInformationApi.V1.Factories
             {
                 Id = domain.Id,
                 TargetId = domain.TargetId,
+                AgeGroup = domain.AgeGroup,
                 Gender = domain.Gender,
                 Nationality = domain.Nationality,
                 Ethnicity = domain.Ethnicity,

@@ -26,6 +26,9 @@ namespace EqualityInformationApi.V1.Boundary.Request.Validation
             RuleFor(x => x.HomeSituation).SetValidator(new HomeSituationValidator());
 
             // XSS Rules
+            RuleFor(x => x.AgeGroup).NotXssString()
+                .WithErrorCode(ErrorCodes.XssCheckFailure);
+
             RuleFor(x => x.Nationality).NotXssString()
                .WithErrorCode(ErrorCodes.XssCheckFailure);
 
