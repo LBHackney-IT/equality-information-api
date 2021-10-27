@@ -42,3 +42,16 @@ terraform {
     key     = "services/equality-information-api/state"
   }
 }
+
+resource "aws_sns_topic" "equalityInformation" {
+  name                        = "equalityInformation.fifo"
+  fifo_topic                  = true
+  content_based_deduplication = true
+  kms_master_key_id           = "alias/aws/sns"
+}
+
+resource "aws_ssm_parameter" "equality_information_sns_arn" {
+  name  = "/sns-topic/staging/equalityInformation/arn"
+  type  = "String"
+  value = aws_sns_topic.equalityInformation.arn
+}
