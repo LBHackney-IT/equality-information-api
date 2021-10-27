@@ -77,7 +77,7 @@ resources:
                   Action:
                     - "sns:Publish"
                   Resource:
-                    - ${ssm:/sns-topic/${self:provider.stage}/tenure/arn}
+                    - ${ssm:/sns-topic/${self:provider.stage}/equalityInformation/arn}
           - PolicyName: manageLogs
             PolicyDocument:
               Version: "2012-10-17"
