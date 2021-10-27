@@ -29,6 +29,7 @@ functions:
     handler: EqualityInformationApi::EqualityInformationApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
     environment:
+      EQUALITY_INFORMATION_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/equalityInformation/arn}
     events:
       - http:
           path: /{proxy+}
