@@ -30,9 +30,11 @@ namespace EqualityInformationApi.V1.Boundary.Request.Validation
 
             RuleFor(x => x.Languages).Must(x => x.Count < 10)
                          .WithMessage("Please only enter up to 10 languages")
+                         .WithErrorCode(ErrorCodes.TooManyLanguages)
                          .When(x => x.Languages != null);
             RuleFor(x => x.Languages).Must(x => x.Count(y => y.IsPrimary) == 1)
                                      .WithMessage("You must choose one language as the primary")
+                                     .WithErrorCode(ErrorCodes.OnePrimaryLanguage)
                                      .When(x => (x.Languages != null) && x.Languages.Any());
 
             // XSS Rules
