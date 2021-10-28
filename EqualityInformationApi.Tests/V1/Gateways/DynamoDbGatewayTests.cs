@@ -1,10 +1,9 @@
-using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
 using EqualityInformationApi.V1.Boundary.Request;
-using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.Testing.DynamoDb;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -18,17 +17,17 @@ namespace EqualityInformationApi.Tests.V1.Gateways
     public class DynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
-        private EqualityInformationGateway _classUnderTest;
+        private readonly EqualityInformationGateway _classUnderTest;
         private readonly List<Action> _cleanup = new List<Action>();
-        private Mock<ILogger<EqualityInformationGateway>> _logger;
-        private readonly IDynamoDBContext _dynamoDb;
+        private readonly Mock<ILogger<EqualityInformationGateway>> _logger;
+        private readonly IDynamoDbFixture _dbFixture;
 
-        public DynamoDbGatewayTests(AWSIntegrationTests<Startup> dbTestFixture)
+        public DynamoDbGatewayTests(MockWebApplicationFactory<Startup> startupFixture)
         {
             _logger = new Mock<ILogger<EqualityInformationGateway>>();
-            _dynamoDb = dbTestFixture.DynamoDbContext;
+            _dbFixture = startupFixture.DynamoDbFixture;
 
-            _classUnderTest = new EqualityInformationGateway(_dynamoDb, _logger.Object);
+            _classUnderTest = new EqualityInformationGateway(_dbFixture.DynamoDbContext, _logger.Object);
         }
 
         public void Dispose()
@@ -61,14 +60,9 @@ namespace EqualityInformationApi.Tests.V1.Gateways
             // Assert
             response.Should().BeEquivalentTo(request);
 
-            var databaseResponse = await _dynamoDb.LoadAsync<EqualityInformationDb>(request.TargetId, response.Id).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<EqualityInformationDb>(request.TargetId, response.Id)
+                                                                   .ConfigureAwait(false);
             databaseResponse.Should().BeEquivalentTo(request);
-        }
-
-        private async Task InsertDatatoDynamoDB(EqualityInformationDb entity)
-        {
-            await _dynamoDb.SaveAsync(entity).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity).ConfigureAwait(false));
         }
     }
 }
