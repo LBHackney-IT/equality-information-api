@@ -17,6 +17,9 @@ namespace EqualityInformationApi.V1.Boundary.Request.Validation
 
             RuleFor(x => x.GenderValueIfOther).NotXssString()
                 .WithErrorCode(ErrorCodes.XssCheckFailure);
+
+            RuleFor(x => x.GenderDifferentToBirthSex).NotXssString()
+                .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
     }
 }

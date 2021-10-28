@@ -9,42 +9,42 @@ using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Boundary.Validation.ChildValidators
 {
-    public class CaringResponsibilitiesValidatorTests
+    public class MarriageOrCivilPartnershipValidatorTests
     {
-        private readonly CaringResponsibilitiesValidator _sut;
+        private readonly MarriageOrCivilPartnershipValidator _sut;
 
         private const string StringWithTags = "Some string with <tag> in it.";
 
-        public CaringResponsibilitiesValidatorTests()
+        public MarriageOrCivilPartnershipValidatorTests()
         {
-            _sut = new CaringResponsibilitiesValidator();
+            _sut = new MarriageOrCivilPartnershipValidator();
         }
 
         [Fact]
-        public void ShouldErrorWhenHoursSpentProvidingUnpaidCareContainsTags()
+        public void ShouldErrorWhenMarriedContainsTags()
         {
             // Arrange
-            var query = new CaringResponsibilities { HoursSpentProvidingUnpaidCare = StringWithTags };
+            var query = new MarriageOrCivilPartnership { Married = StringWithTags };
 
             // Act
             var result = _sut.TestValidate(query);
 
             // Assert
-            result.ShouldHaveValidationErrorFor(x => x.HoursSpentProvidingUnpaidCare)
+            result.ShouldHaveValidationErrorFor(x => x.Married)
               .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
 
         [Fact]
-        public void ShouldErrorWhenProvideUnpaidCareContainsTags()
+        public void ShouldErrorWhenCivilPartnershipContainsTags()
         {
             // Arrange
-            var query = new CaringResponsibilities { ProvideUnpaidCare = StringWithTags };
+            var query = new MarriageOrCivilPartnership { CivilPartnership = StringWithTags };
 
             // Act
             var result = _sut.TestValidate(query);
 
             // Assert
-            result.ShouldHaveValidationErrorFor(x => x.ProvideUnpaidCare)
+            result.ShouldHaveValidationErrorFor(x => x.CivilPartnership)
               .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
     }

@@ -20,22 +20,6 @@ namespace EqualityInformationApi.Tests.V1.Boundary.Validation
             _sut = new EqualityInformationObjectValidator();
         }
 
-        // target id null
-        // target id empty
-
-        // nationality
-        // xss
-
-        // nationalInsuranceNumber
-        // xss
-
-        // communicationRequirements#
-        // xss
-
-        // armedForces
-        // xss
-
-
         [Fact]
         public void ShouldErrorWhenTargetIdNull()
         {
@@ -120,6 +104,34 @@ namespace EqualityInformationApi.Tests.V1.Boundary.Validation
 
             // Assert
             result.ShouldHaveValidationErrorFor(x => x.ArmedForces)
+                .WithErrorCode(ErrorCodes.XssCheckFailure);
+        }
+
+        [Fact]
+        public void ShouldErrorWhenAgeGroupContainsTags()
+        {
+            // Arrange
+            var query = new EqualityInformationObject() { AgeGroup = StringWithTags };
+
+            // Act
+            var result = _sut.TestValidate(query);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(x => x.AgeGroup)
+                .WithErrorCode(ErrorCodes.XssCheckFailure);
+        }
+
+        [Fact]
+        public void ShouldErrorWhenDisabledContainsTags()
+        {
+            // Arrange
+            var query = new EqualityInformationObject() { Disabled = StringWithTags };
+
+            // Act
+            var result = _sut.TestValidate(query);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(x => x.Disabled)
                 .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
     }

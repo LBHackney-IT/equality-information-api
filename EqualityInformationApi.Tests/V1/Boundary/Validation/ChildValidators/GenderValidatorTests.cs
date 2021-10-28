@@ -47,5 +47,19 @@ namespace EqualityInformationApi.Tests.V1.Boundary.Validation.ChildValidators
             result.ShouldHaveValidationErrorFor(x => x.GenderValueIfOther)
                   .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
+
+        [Fact]
+        public void ShouldErrorWhenGenderDifferentToBirthSexUntilContainsTags()
+        {
+            // Arrange
+            var query = new Gender { GenderDifferentToBirthSex = StringWithTags };
+
+            // Act
+            var result = _sut.TestValidate(query);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(x => x.GenderDifferentToBirthSex)
+                  .WithErrorCode(ErrorCodes.XssCheckFailure);
+        }
     }
 }

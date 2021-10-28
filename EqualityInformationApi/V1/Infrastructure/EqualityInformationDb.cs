@@ -49,8 +49,8 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CaringResponsibilities>))]
         public CaringResponsibilities CaringResponsibilities { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbBoolConverter))]
-        public bool? Disabled { get; set; } = null;
+        [DynamoDBProperty]
+        public string Disabled { get; set; }
 
         [DynamoDBProperty]
         public List<string> CommunicationRequirements { get; set; }

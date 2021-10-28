@@ -10,6 +10,12 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     </PropertyGroup>
+    <ItemGroup>
+      <Compile Remove="V1\Domain\NewFolder\**" />
+      <Content Remove="V1\Domain\NewFolder\**" />
+      <EmbeddedResource Remove="V1\Domain\NewFolder\**" />
+      <None Remove="V1\Domain\NewFolder\**" />
+    </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
