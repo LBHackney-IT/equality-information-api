@@ -1,10 +1,6 @@
 using EqualityInformationApi.V1.Boundary.Request.Validation;
 using EqualityInformationApi.V1.Domain;
 using FluentValidation.TestHelper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Boundary.Validation.ChildValidators

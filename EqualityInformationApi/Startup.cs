@@ -1,44 +1,44 @@
-using Hackney.Core.Sns;
-using EqualityInformationApi.V1.Factories;
 using Amazon;
 using Amazon.XRay.Recorder.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Hackney.Core.JWT;
-using EqualityInformationApi.V1.Gateways;
-using EqualityInformationApi.V1.UseCase.Interfaces;
-using Microsoft.AspNetCore.Builder;
-using EqualityInformationApi.V1.UseCase;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Hosting;
-using Hackney.Core.Middleware.Logging;
-using Hackney.Core.Middleware.CorrelationId;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Hackney.Core.Logging;
-using Hackney.Core.HealthCheck;
-using System.Linq;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Mvc.Versioning;
-using FluentValidation.AspNetCore;
-using System.Text.Json.Serialization;
-using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
-using EqualityInformationApi.V1.Boundary.Request.Validation;
-using Microsoft.Extensions.Configuration;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
-using System.Diagnostics.CodeAnalysis;
-using System.Collections.Generic;
-using Hackney.Core.Validation.AspNet;
-using Hackney.Core.DynamoDb.HealthCheck;
+using EqualityInformationApi.V1.Boundary.Request.Validation;
+using EqualityInformationApi.V1.Factories;
+using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
+using EqualityInformationApi.V1.UseCase;
+using EqualityInformationApi.V1.UseCase.Interfaces;
+using EqualityInformationApi.Versioning;
+using FluentValidation.AspNetCore;
+using Hackney.Core.DynamoDb;
+using Hackney.Core.DynamoDb.HealthCheck;
+using Hackney.Core.HealthCheck;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
+using Hackney.Core.Logging;
+using Hackney.Core.Middleware.CorrelationId;
+using Hackney.Core.Middleware.Exception;
+using Hackney.Core.Middleware.Logging;
+using Hackney.Core.Sns;
+using Hackney.Core.Validation.AspNet;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Hackney.Core.DynamoDb;
-using SnsInitilisationExtensions = Hackney.Core.Sns.SnsInitilisationExtensions;
-using Hackney.Core.Http;
-using Microsoft.Extensions.Hosting;
-using EqualityInformationApi.Versioning;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace EqualityInformationApi
 {
@@ -153,7 +153,7 @@ namespace EqualityInformationApi
 
             services.ConfigureDynamoDB();
 
-            SnsInitilisationExtensions.ConfigureSns(services);
+            services.ConfigureSns();
 
             services.AddTokenFactory();
             services.AddHttpContextWrapper();
