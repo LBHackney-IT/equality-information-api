@@ -85,7 +85,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         public void ServiceReturnsCreatedWhenEntityCreated()
         {
             var request = _fixture.Build<EqualityInformationObject>()
-                                  .With(x => x.NationalInsuranceNumber, (string)null)
+                                  .With(x => x.NationalInsuranceNumber, (string) null)
                                   .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
                                   .Create();
 
