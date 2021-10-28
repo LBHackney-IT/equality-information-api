@@ -18,7 +18,7 @@ namespace EqualityInformationApi.V1.Domain
         public MarriageOrCivilPartnership MarriageOrCivilPartnership { get; set; }
         public List<PregnancyOrMaternity> PregnancyOrMaternity { get; set; }
         public string NationalInsuranceNumber { get; set; }
-        public List<Languages> Languages { get; set; }
+        public List<LanguageInfo> Languages { get; set; }
         public CaringResponsibilities CaringResponsibilities { get; set; }
         public string Disabled { get; set; }
         public List<string> CommunicationRequirements { get; set; }

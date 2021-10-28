@@ -1,30 +1,26 @@
 using EqualityInformationApi.V1.Boundary.Request.Validation;
 using EqualityInformationApi.V1.Domain;
 using FluentValidation.TestHelper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Boundary.Validation.ChildValidators
 {
-    public class LanguageValidatorTests
+    public class LanguageInfoValidatorTests
     {
-        private readonly LanguageValidator _sut;
+        private readonly LanguageInfoValidator _sut;
 
         private const string StringWithTags = "Some string with <tag> in it.";
 
-        public LanguageValidatorTests()
+        public LanguageInfoValidatorTests()
         {
-            _sut = new LanguageValidator();
+            _sut = new LanguageInfoValidator();
         }
 
         [Fact]
         public void ShouldErrorWhenLanguageContainsTags()
         {
             // Arrange
-            var query = new Languages { Language = StringWithTags };
+            var query = new LanguageInfo { Language = StringWithTags };
 
             // Act
             var result = _sut.TestValidate(query);

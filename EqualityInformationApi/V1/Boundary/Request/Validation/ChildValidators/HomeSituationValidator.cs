@@ -1,9 +1,5 @@
 using EqualityInformationApi.V1.Domain;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Hackney.Core.Validation;
 
 namespace EqualityInformationApi.V1.Boundary.Request.Validation

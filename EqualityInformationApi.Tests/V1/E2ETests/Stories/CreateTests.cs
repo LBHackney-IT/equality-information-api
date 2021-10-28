@@ -2,9 +2,11 @@ using AutoFixture;
 using EqualityInformationApi.Tests.V1.E2ETests.Fixtures;
 using EqualityInformationApi.Tests.V1.E2ETests.Steps;
 using EqualityInformationApi.V1.Boundary.Request;
+using EqualityInformationApi.V1.Domain;
 using Hackney.Core.Sns;
 using Hackney.Core.Testing.DynamoDb;
 using System;
+using System.Collections.Generic;
 using TestStack.BDDfy;
 using Xunit;
 
@@ -22,8 +24,6 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         private readonly EqualityInformationFixture _testFixture;
         private readonly CreateSteps _steps;
         private readonly Fixture _fixture = new Fixture();
-
-        private const string StringWithTags = "Some string with <tag> in it.";
 
         public CreateTests(MockWebApplicationFactory<Startup> startupFixture)
         {
@@ -66,21 +66,28 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         }
 
         [Fact]
-        public void ServiceReturnsBadRequestWhenRequestContainsTags()
+        public void ServiceReturnsBadRequestWhenRequestFailsValidation()
         {
-            var request = _fixture.Create<EqualityInformationObject>();
-            request.ArmedForces = StringWithTags;
+            var request = _fixture.Build<EqualityInformationObject>()
+                                  .With(x => x.ArmedForces, "Some string with <tag> in it.")
+                                  .With(x => x.NationalInsuranceNumber, "InvalidNI")
+                                  .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = false } })
+                                  .Create();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
                 .When(w => _steps.WhenTheApiIsCalled(request))
                 .Then(t => _steps.ThenBadRequestIsReturned())
+                .Then(t => _steps.ThenTheValidationErrorsAreReturned("ArmedForces", "NationalInsuranceNumber", "Languages"))
                 .BDDfy();
         }
 
         [Fact]
         public void ServiceReturnsCreatedWhenEntityCreated()
         {
-            var request = _fixture.Create<EqualityInformationObject>();
+            var request = _fixture.Build<EqualityInformationObject>()
+                                  .With(x => x.NationalInsuranceNumber, (string)null)
+                                  .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
+                                  .Create();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
                 .When(w => _steps.WhenTheApiIsCalled(request))
