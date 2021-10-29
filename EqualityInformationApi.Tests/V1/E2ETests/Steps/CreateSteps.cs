@@ -5,9 +5,11 @@ using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Infrastructure;
+using EqualityInformationApi.V1.Infrastructure.Constants;
 using FluentAssertions;
 using Hackney.Core.Sns;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +19,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using JsonSerializer = System.Text.Json.JsonSerializer;
-using EqualityInformationApi.V1.Infrastructure.Constants;
 
 namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
 {
@@ -25,6 +26,14 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
     {
         public CreateSteps(HttpClient httpClient) : base(httpClient)
         { }
+
+        private static void ShouldHaveErrorFor(JEnumerable<JToken> errors, string propertyName, string errorCode = null)
+        {
+            var error = errors.FirstOrDefault(x => (x.Path.Split('.').Last().Trim('\'', ']')) == propertyName) as JProperty;
+            error.Should().NotBeNull();
+            if (!string.IsNullOrEmpty(errorCode))
+                error.Value.ToString().Should().Contain(errorCode);
+        }
 
         public async Task WhenTheApiIsCalled(EqualityInformationObject request)
         {
@@ -89,6 +98,17 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             };
 
             snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+        }
+
+        public async Task ThenTheValidationErrorsAreReturned(List<KeyValuePair<string, string>> expectedErrors)
+        {
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            JObject jo = JObject.Parse(responseContent);
+            var errors = jo["errors"].Children();
+
+            foreach (var err in expectedErrors)
+                ShouldHaveErrorFor(errors, err.Key, err.Value);
         }
     }
 

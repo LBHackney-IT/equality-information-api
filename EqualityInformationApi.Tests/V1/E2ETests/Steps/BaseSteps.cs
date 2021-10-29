@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
 {
@@ -38,7 +34,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
         public T DecodeResponse<T>(HttpResponseMessage response)
         {
             var responseContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-            var responseObject = System.Text.Json.JsonSerializer.Deserialize<T>(responseContent, CreateJsonOptions());
+            var responseObject = JsonSerializer.Deserialize<T>(responseContent, CreateJsonOptions());
 
             return responseObject;
         }

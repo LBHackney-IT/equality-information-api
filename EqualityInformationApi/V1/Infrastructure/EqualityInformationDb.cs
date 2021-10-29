@@ -43,8 +43,8 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty]
         public string NationalInsuranceNumber { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<Languages>))]
-        public List<Languages> Languages { get; set; }
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<LanguageInfo>))]
+        public List<LanguageInfo> Languages { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CaringResponsibilities>))]
         public CaringResponsibilities CaringResponsibilities { get; set; }

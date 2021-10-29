@@ -1,21 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-    <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>$(NoWarn);1591</NoWarn>
-        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-    </PropertyGroup>
-    <ItemGroup>
-      <Compile Remove="V1\Domain\NewFolder\**" />
-      <Content Remove="V1\Domain\NewFolder\**" />
-      <EmbeddedResource Remove="V1\Domain\NewFolder\**" />
-      <None Remove="V1\Domain\NewFolder\**" />
-    </ItemGroup>
+    
+  <PropertyGroup>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <NoWarn>$(NoWarn);1591;CA1308;CA2234</NoWarn>
+      <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
@@ -27,27 +22,23 @@
     <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.2" />
     <PackageReference Include="AWSXRayRecorder.Handlers.EntityFramework" Version="1.1.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.4" />
-    <PackageReference Include="Hackney.Core.DynamoDb" Version="1.30.0" />
-    <PackageReference Include="Hackney.Core.HealthCheck" Version="1.30.0" />
+    <PackageReference Include="Hackney.Core.DynamoDb" Version="1.51.0" />
+    <PackageReference Include="Hackney.Core.HealthCheck" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Http" Version="1.49.0" />
-    <PackageReference Include="Hackney.Core.Logging" Version="1.30.0" />
-    <PackageReference Include="Hackney.Core.Middleware" Version="1.30.0" />
+    <PackageReference Include="Hackney.Core.Logging" Version="1.49.0" />
+    <PackageReference Include="Hackney.Core.Middleware" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Sns" Version="1.52.0" />
-    <PackageReference Include="Hackney.Core.Validation" Version="1.49.0" />
+    <PackageReference Include="Hackney.Core.Validation" Version="1.56.0" />
     <PackageReference Include="Hackney.Core.Validation.AspNet" Version="1.53.0" />
     <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="terraform\" />
   </ItemGroup>
 
 </Project>
