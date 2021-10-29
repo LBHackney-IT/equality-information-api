@@ -11,6 +11,7 @@ using Hackney.Core.Sns;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -99,15 +100,15 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
         }
 
-        public async Task ThenTheValidationErrorsAreReturned(params string[] propertyNames)
+        public async Task ThenTheValidationErrorsAreReturned(List<KeyValuePair<string, string>> expectedErrors)
         {
             var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             JObject jo = JObject.Parse(responseContent);
             var errors = jo["errors"].Children();
 
-            foreach (var prop in propertyNames)
-                ShouldHaveErrorFor(errors, prop);
+            foreach (var err in expectedErrors)
+                ShouldHaveErrorFor(errors, err.Key, err.Value);
         }
     }
 

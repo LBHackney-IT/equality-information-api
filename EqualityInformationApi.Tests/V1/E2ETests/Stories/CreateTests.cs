@@ -2,6 +2,7 @@ using AutoFixture;
 using EqualityInformationApi.Tests.V1.E2ETests.Fixtures;
 using EqualityInformationApi.Tests.V1.E2ETests.Steps;
 using EqualityInformationApi.V1.Boundary.Request;
+using EqualityInformationApi.V1.Boundary.Request.Validation;
 using EqualityInformationApi.V1.Domain;
 using Hackney.Core.Sns;
 using Hackney.Core.Testing.DynamoDb;
@@ -73,11 +74,17 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                                   .With(x => x.NationalInsuranceNumber, "InvalidNI")
                                   .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = false } })
                                   .Create();
+            var errorInfo = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("ArmedForces", ErrorCodes.XssCheckFailure),
+                new KeyValuePair<string, string>("NationalInsuranceNumber", null),
+                new KeyValuePair<string, string>("Languages", ErrorCodes.OnePrimaryLanguage),
+            };
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
                 .When(w => _steps.WhenTheApiIsCalled(request))
                 .Then(t => _steps.ThenBadRequestIsReturned())
-                .Then(t => _steps.ThenTheValidationErrorsAreReturned("ArmedForces", "NationalInsuranceNumber", "Languages"))
+                .Then(t => _steps.ThenTheValidationErrorsAreReturned(errorInfo))
                 .BDDfy();
         }
 

@@ -169,7 +169,8 @@ namespace EqualityInformationApi.Tests.V1.Boundary.Validation
             languages.Add(new LanguageInfo() { Language = "Primary", IsPrimary = true });
             var model = new EqualityInformationObject() { Languages = languages };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Languages);
+            result.ShouldHaveValidationErrorFor(x => x.Languages)
+                  .WithErrorCode(ErrorCodes.TooManyLanguages);
         }
 
         [Fact]
@@ -180,7 +181,8 @@ namespace EqualityInformationApi.Tests.V1.Boundary.Validation
                                     .CreateMany(5).ToList();
             var model = new EqualityInformationObject() { Languages = languages };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Languages);
+            result.ShouldHaveValidationErrorFor(x => x.Languages)
+                  .WithErrorCode(ErrorCodes.OnePrimaryLanguage);
         }
 
         [Fact]
@@ -191,7 +193,8 @@ namespace EqualityInformationApi.Tests.V1.Boundary.Validation
                                     .CreateMany(5).ToList();
             var model = new EqualityInformationObject() { Languages = languages };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Languages);
+            result.ShouldHaveValidationErrorFor(x => x.Languages)
+                  .WithErrorCode(ErrorCodes.OnePrimaryLanguage);
         }
 
         [Fact]
