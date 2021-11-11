@@ -102,31 +102,5 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                 .And(t => _steps.ThenTheEqualityInformationCreatedEventIsRaised(_testFixture, _snsVerifier))
                 .BDDfy();
         }
-
-        [Fact]
-        public void ServicePatchesEnityCorrectly()
-        {
-            var request = _fixture.Build<PatchEqualityInformationObject>()
-                .With(x => x.NationalInsuranceNumber, (string) null)
-                .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
-                .Create();
-
-            this.Given(x => _testFixture.GivenAnEntityExists())
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, _testFixture.Entity.Id.ToString()))
-                .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
-                .BDDfy();
-        }
-
-        [Fact]
-        public void PatchServiceReturnsBadRequestWhenTargetIdEmpty()
-        {
-            var request = _fixture.Create<PatchEqualityInformationObject>();
-            request.TargetId = Guid.Empty;
-
-            this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, Guid.NewGuid().ToString()))
-                .Then(t => _steps.ThenBadRequestIsReturned())
-                .BDDfy();
-        }
     }
 }

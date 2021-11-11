@@ -54,27 +54,6 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             message.Dispose();
         }
 
-        public async Task WhenTheApiIsCalledToPatch(PatchEqualityInformationObject request, string id)
-        {
-            request.Id = id;
-
-            var uri = new Uri($"api/v1/equality-information/{request.Id}", UriKind.Relative);
-
-            var message = new HttpRequestMessage(HttpMethod.Patch, uri);
-            message.Headers.Add("Authorization", Token);
-
-            message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-            message.Method = HttpMethod.Patch;
-
-            _httpClient.DefaultRequestHeaders
-                .Accept
-                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
-
-            message.Dispose();
-        }
-
         public void ThenBadRequestIsReturned()
         {
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
