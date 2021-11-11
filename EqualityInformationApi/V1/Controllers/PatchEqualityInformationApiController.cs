@@ -35,11 +35,11 @@ namespace EqualityInformationApi.V1.Controllers
             _contextWrapper = contextWrapper;
         }
 
-        [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPost]
+        [HttpPatch]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> Create([FromQuery] string id, [FromBody] PatchEqualityInformationObject request)
+        public async Task<IActionResult> Patch([FromQuery] string id, [FromBody] PatchEqualityInformationObject request)
         {
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
             request.Id = id;
