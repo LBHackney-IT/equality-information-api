@@ -20,16 +20,16 @@ namespace EqualityInformationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class PatchEqualityInformationApiController : BaseController
     {
-        private readonly ICreateUseCase _createUseCase;
+        private readonly IPatchUseCase _patchUseCase;
         private readonly ITokenFactory _tokenFactory;
         private readonly IHttpContextWrapper _contextWrapper;
 
         public PatchEqualityInformationApiController(
-            ICreateUseCase createUseCase,
+            IPatchUseCase patchUseCase,
             ITokenFactory tokenFactory,
             IHttpContextWrapper contextWrapper)
         {
-            _createUseCase = createUseCase;
+            _patchUseCase = patchUseCase;
 
             _tokenFactory = tokenFactory;
             _contextWrapper = contextWrapper;
@@ -45,7 +45,7 @@ namespace EqualityInformationApi.V1.Controllers
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
             request.Id = id;
 
-            var response = await _createUseCase.Execute(request, token).ConfigureAwait(false);
+            var response = await _patchUseCase.Execute(request, token).ConfigureAwait(false);
 
             var location = $"/api/v1/equality-information/{response.Id}/?targetId={response.TargetId}";
             return Created(location, response);
