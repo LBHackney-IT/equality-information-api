@@ -38,8 +38,9 @@ namespace EqualityInformationApi.V1.Controllers
         [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch]
+        [Route("{}id")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> Patch([FromQuery] string id, [FromBody] PatchEqualityInformationObject request)
+        public async Task<IActionResult> Patch([FromRoute] string id, [FromBody] PatchEqualityInformationObject request)
         {
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
             request.Id = id;

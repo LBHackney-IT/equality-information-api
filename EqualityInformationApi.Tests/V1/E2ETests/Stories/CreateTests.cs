@@ -61,7 +61,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             request.TargetId = Guid.Empty;
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .BDDfy();
         }
@@ -82,7 +82,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             };
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .Then(t => _steps.ThenTheValidationErrorsAreReturned(errorInfo))
                 .BDDfy();
@@ -97,9 +97,23 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                                   .Create();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
                 .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
                 .And(t => _steps.ThenTheEqualityInformationCreatedEventIsRaised(_testFixture, _snsVerifier))
+                .BDDfy();
+        }
+
+        [Fact]
+        public void ServicePatchesEnityCorrectly()
+        {
+            var request = _fixture.Build<PatchEqualityInformationObject>()
+                .With(x => x.NationalInsuranceNumber, (string) null)
+                .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
+                .Create();
+
+            this.Given(x => _testFixture.GivenAnEntityExists())
+                .When(w => _steps.WhenTheApiIsCalledToPatch(request, _testFixture.Entity.Id.ToString()))
+                .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
                 .BDDfy();
         }
     }
