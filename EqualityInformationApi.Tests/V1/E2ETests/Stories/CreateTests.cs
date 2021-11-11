@@ -116,5 +116,17 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                 .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
                 .BDDfy();
         }
+
+        [Fact]
+        public void PatchServiceReturnsBadRequestWhenTargetIdEmpty()
+        {
+            var request = _fixture.Create<PatchEqualityInformationObject>();
+            request.TargetId = Guid.Empty;
+
+            this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
+                .When(w => _steps.WhenTheApiIsCalledToPatch(request, Guid.NewGuid().ToString()))
+                .Then(t => _steps.ThenBadRequestIsReturned())
+                .BDDfy();
+        }
     }
 }

@@ -35,7 +35,7 @@ namespace EqualityInformationApi.V1.Controllers
             _contextWrapper = contextWrapper;
         }
 
-        [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch]
         [Route("{id}")]

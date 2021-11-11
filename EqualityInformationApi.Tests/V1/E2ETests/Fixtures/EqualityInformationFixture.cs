@@ -64,7 +64,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
             Entity = _fixture.Build<EqualityInformationDb>()
                 .Create();
 
-            DbContext.SaveAsync<EqualityInformationDb>(Entity).GetAwaiter().GetResult();
+            DbContext.SaveAsync(Entity).GetAwaiter().GetResult();
         }
     }
 }
