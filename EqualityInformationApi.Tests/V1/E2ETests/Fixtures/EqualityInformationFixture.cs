@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.Runtime.Internal.Util;
 
 namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 {
@@ -14,6 +15,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
     {
         public IDynamoDBContext DbContext { get; private set; }
         private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
+        private readonly Fixture _fixture;
 
         public EqualityInformationDb Entity { get; private set; }
         public List<EqualityInformationDb> Entities { get; private set; } = new List<EqualityInformationDb>();
@@ -22,6 +24,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
         {
             DbContext = context;
             _amazonSimpleNotificationService = amazonSimpleNotificationService;
+            _fixture = new Fixture();
         }
 
         public void Dispose()
@@ -54,7 +57,14 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenAnEntityDoesNotExist()
         {
-            //
+        }
+
+        public void GivenAnEntityExists()
+        {
+            Entity = _fixture.Build<EqualityInformationDb>()
+                .Create();
+
+            DbContext.SaveAsync(Entity).GetAwaiter().GetResult();
         }
     }
 }

@@ -36,5 +36,16 @@ namespace EqualityInformationApi.V1.Gateways
 
             return entity.ToDomain();
         }
+
+        public async Task<EqualityInformation> Update(PatchEqualityInformationObject request)
+        {
+            var entity = request.ToDomain().ToDatabase();
+
+            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for {entity.TargetId}.{entity.Id}");
+
+            await _dynamoDbContext.SaveAsync(entity).ConfigureAwait(false);
+
+            return entity.ToDomain();
+        }
     }
 }
