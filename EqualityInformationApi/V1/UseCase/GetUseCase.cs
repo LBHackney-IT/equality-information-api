@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.UseCase
 {
-    public class GetUseUseCase : IGetUseCase
+    public class GetUseCase : IGetUseCase
     {
         private readonly IEqualityInformationGateway _gateway;
         private readonly ISnsGateway _snsGateway;
         private readonly ISnsFactory _snsFactory;
 
-        public GetUseUseCase(
+        public GetUseCase(
             IEqualityInformationGateway gateway,
             ISnsGateway snsGateway,
             ISnsFactory snsFactory)
