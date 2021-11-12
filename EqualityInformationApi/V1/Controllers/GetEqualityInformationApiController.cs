@@ -35,18 +35,17 @@ namespace EqualityInformationApi.V1.Controllers
             _contextWrapper = contextWrapper;
         }
 
-        [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(List<EqualityInformationObject>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> Get([FromQuery] string targetId)
+        public async Task<IActionResult> Get([FromQuery] Guid targetId)
         {
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
 
             var response = await _getUseCase.Execute(targetId, token).ConfigureAwait(false);
 
-            var location = $"/api/v1/equality-information/{response.Id}";
-            return Created(location, response);
+            return Ok(response);
         }
     }
 }

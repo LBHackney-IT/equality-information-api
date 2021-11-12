@@ -14,6 +14,6 @@ namespace EqualityInformationApi.V1.Gateways
 
         Task<EqualityInformation> Update(PatchEqualityInformationObject request);
 
-        Task<EqualityInformation> Get(string targetId);
+        Task<List<EqualityInformation>> Get(Guid targetId);
     }
 }

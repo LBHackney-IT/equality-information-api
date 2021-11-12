@@ -15,8 +15,6 @@ namespace EqualityInformationApi.V1.UseCase
     public class GetUseCase : IGetUseCase
     {
         private readonly IEqualityInformationGateway _gateway;
-        private readonly ISnsGateway _snsGateway;
-        private readonly ISnsFactory _snsFactory;
 
         public GetUseCase(
             IEqualityInformationGateway gateway,
@@ -24,15 +22,13 @@ namespace EqualityInformationApi.V1.UseCase
             ISnsFactory snsFactory)
         {
             _gateway = gateway;
-            _snsGateway = snsGateway;
-            _snsFactory = snsFactory;
         }
 
-        public async Task<EqualityInformationResponseObject> Execute(string targetId, Token token)
+        public async Task<List<EqualityInformationResponseObject>> Execute(Guid targetId, Token token)
         {
             var equalityInformation = await _gateway.Get(targetId).ConfigureAwait(false);
 
-            return equalityInformation.ToResponse();
+            return equalityInformation.Select(x => x.ToResponse()).ToList();
         }
     }
 }
