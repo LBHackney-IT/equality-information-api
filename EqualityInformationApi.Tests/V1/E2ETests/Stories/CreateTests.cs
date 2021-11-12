@@ -61,7 +61,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             request.TargetId = Guid.Empty;
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .BDDfy();
         }
@@ -82,7 +82,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             };
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .Then(t => _steps.ThenTheValidationErrorsAreReturned(errorInfo))
                 .BDDfy();
@@ -97,7 +97,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                                   .Create();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
                 .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
                 .And(t => _steps.ThenTheEqualityInformationCreatedEventIsRaised(_testFixture, _snsVerifier))
                 .BDDfy();

@@ -14,7 +14,7 @@ namespace EqualityInformationApi.V1.Factories
         {
             return new EqualityInformation
             {
-                Id = Guid.NewGuid(),
+                Id = request.TargetId == Guid.Empty ? Guid.NewGuid() : request.TargetId,
                 TargetId = request.TargetId,
                 AgeGroup = request.AgeGroup,
                 Gender = request.Gender,

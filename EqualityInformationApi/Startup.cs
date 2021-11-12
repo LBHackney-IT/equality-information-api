@@ -177,6 +177,7 @@ namespace EqualityInformationApi
         {
             services.AddScoped<ICreateUseCase, CreateUseCase>();
             services.AddScoped<IGetUseCase, GetUseCase>();
+            services.AddScoped<IPatchUseCase, PatchUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

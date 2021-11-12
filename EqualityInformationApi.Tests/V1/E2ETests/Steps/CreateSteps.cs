@@ -35,7 +35,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
                 error.Value.ToString().Should().Contain(errorCode);
         }
 
-        public async Task WhenTheApiIsCalled(EqualityInformationObject request)
+        public async Task WhenTheApiIsCalledToCreate(EqualityInformationObject request)
         {
             var uri = new Uri($"api/v1/equality-information/", UriKind.Relative);
 
