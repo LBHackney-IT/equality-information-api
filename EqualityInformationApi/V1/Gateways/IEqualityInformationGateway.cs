@@ -12,6 +12,6 @@ namespace EqualityInformationApi.V1.Gateways
     {
         Task<EqualityInformation> Create(EqualityInformationObject request);
 
-        Task<EqualityInformation> Patch(PatchEqualityInformationObject request);
+        Task<EqualityInformation> Update(PatchEqualityInformationObject request);
     }
 }

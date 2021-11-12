@@ -37,7 +37,7 @@ namespace EqualityInformationApi.V1.Gateways
             return entity.ToDomain();
         }
 
-        public async Task<EqualityInformation> Patch(PatchEqualityInformationObject request)
+        public async Task<EqualityInformation> Update(PatchEqualityInformationObject request)
         {
             var entity = request.ToDomain().ToDatabase();
 
