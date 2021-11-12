@@ -11,5 +11,7 @@ namespace EqualityInformationApi.V1.Gateways
     public interface IEqualityInformationGateway
     {
         Task<EqualityInformation> Create(EqualityInformationObject request);
+
+        Task<EqualityInformation> Get(string targetId);
     }
 }
