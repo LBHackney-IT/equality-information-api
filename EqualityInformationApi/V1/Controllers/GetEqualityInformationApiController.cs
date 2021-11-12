@@ -45,7 +45,7 @@ namespace EqualityInformationApi.V1.Controllers
 
             var response = await _getUseCase.Execute(targetId, token).ConfigureAwait(false);
 
-            var location = $"/api/v1/equality-information/{response.Id}/?targetId={response.TargetId}";
+            var location = $"/api/v1/equality-information/{response.Id}";
             return Created(location, response);
         }
     }

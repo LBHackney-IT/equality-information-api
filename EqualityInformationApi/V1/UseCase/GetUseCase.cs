@@ -32,11 +32,6 @@ namespace EqualityInformationApi.V1.UseCase
         {
             var equalityInformation = await _gateway.Get(targetId).ConfigureAwait(false);
 
-            var createSnsMessage = _snsFactory.Create(equalityInformation, token);
-            var tenureTopicArn = Environment.GetEnvironmentVariable("EQUALITY_INFORMATION_SNS_ARN");
-
-            await _snsGateway.Publish(createSnsMessage, tenureTopicArn).ConfigureAwait(false);
-
             return equalityInformation.ToResponse();
         }
     }
