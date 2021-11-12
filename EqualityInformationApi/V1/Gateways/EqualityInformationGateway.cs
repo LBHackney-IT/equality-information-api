@@ -51,7 +51,7 @@ namespace EqualityInformationApi.V1.Gateways
         [LogCall]
         public async Task<EqualityInformation> Get(string targetId)
         {
-            var entity = await _dynamoDbContext.LoadAsync<EqualityInformationDb>(targetId)
+            var entity = await _dynamoDbContext.LoadAsync<EqualityInformationDb>(Guid.Parse(targetId))
                 .ConfigureAwait(false);
 
             return entity.ToDomain();
