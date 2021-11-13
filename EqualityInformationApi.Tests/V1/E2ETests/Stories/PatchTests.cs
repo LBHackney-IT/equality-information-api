@@ -62,7 +62,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                 .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
                 .Create();
 
-            this.Given(x => _testFixture.GivenAnEntityExists())
+            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
                 .When(w => _steps.WhenTheApiIsCalledToPatch(request, _testFixture.Entity.Id.ToString()))
                 .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
                 .BDDfy();

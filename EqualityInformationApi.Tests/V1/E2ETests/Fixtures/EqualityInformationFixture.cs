@@ -59,10 +59,12 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
         {
         }
 
-        public void GivenAnEntityExists()
+        public void GivenAnEntityExists(Guid targetId)
         {
             Entity = _fixture.Build<EqualityInformationDb>()
                 .Create();
+
+            Entity.TargetId = targetId;
 
             DbContext.SaveAsync(Entity).GetAwaiter().GetResult();
         }

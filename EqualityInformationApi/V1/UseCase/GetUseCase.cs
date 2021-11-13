@@ -24,11 +24,11 @@ namespace EqualityInformationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public async Task<List<EqualityInformationResponseObject>> Execute(Guid targetId, Token token)
+        public async Task<EqualityInformationResponseObject> Execute(Guid targetId, Token token)
         {
             var equalityInformation = await _gateway.Get(targetId).ConfigureAwait(false);
 
-            return equalityInformation.Select(x => x.ToResponse()).ToList();
+            return equalityInformation.ToResponse();
         }
     }
 }

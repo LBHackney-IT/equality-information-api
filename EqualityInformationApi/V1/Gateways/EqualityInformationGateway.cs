@@ -49,12 +49,12 @@ namespace EqualityInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<List<EqualityInformation>> Get(Guid targetId)
+        public async Task<EqualityInformation> Get(Guid targetId)
         {
-            var entity = await _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId)
-                .GetRemainingAsync().ConfigureAwait(false);
+            var entity = await _dynamoDbContext.LoadAsync<EqualityInformationDb>(targetId)
+                .ConfigureAwait(false);
 
-            return entity.Select(x => x.ToDomain()).ToList();
+            return entity.ToDomain();
         }
     }
 }

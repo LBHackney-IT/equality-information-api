@@ -8,6 +8,6 @@ namespace EqualityInformationApi.V1.UseCase.Interfaces
 {
     public interface IGetUseCase
     {
-        Task<List<EqualityInformationResponseObject>> Execute(Guid targetId, Token token);
+        Task<EqualityInformationResponseObject> Execute(Guid targetId, Token token);
     }
 }

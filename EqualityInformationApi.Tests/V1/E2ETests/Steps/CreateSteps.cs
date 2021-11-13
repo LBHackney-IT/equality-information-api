@@ -54,6 +54,24 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             message.Dispose();
         }
 
+        public async Task WhenTheApiIsCalledToGet(Guid targetId)
+        {
+            var uri = new Uri($"api/v1/equality-information/?targetId={targetId}", UriKind.Relative);
+
+            var message = new HttpRequestMessage(HttpMethod.Get, uri);
+            message.Headers.Add("Authorization", Token);
+
+            message.Method = HttpMethod.Get;
+
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
+
+            message.Dispose();
+        }
+
         public void ThenBadRequestIsReturned()
         {
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
