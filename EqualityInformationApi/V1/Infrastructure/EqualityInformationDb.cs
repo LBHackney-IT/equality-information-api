@@ -86,7 +86,7 @@ namespace EqualityInformationApi.V1.Infrastructure
             if (entry == null || entry.AsDynamoDBNull() != null)
                 return (object) null;
 
-            return entry.AsString();
+            return entry;
         }
     }
 }
