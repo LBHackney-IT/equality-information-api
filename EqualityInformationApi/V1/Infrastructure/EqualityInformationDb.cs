@@ -19,13 +19,13 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBRangeKey]
         public Guid Id { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter))]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string AgeGroup { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Gender>))]
         public Gender Gender { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter))]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string Nationality { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Ethnicity>))]
@@ -43,7 +43,7 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<PregnancyOrMaternity>))]
         public List<PregnancyOrMaternity> PregnancyOrMaternity { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter))]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string NationalInsuranceNumber { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<LanguageInfo>))]
@@ -52,10 +52,9 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CaringResponsibilities>))]
         public CaringResponsibilities CaringResponsibilities { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter))]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string Disabled { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter))]
         public List<string> CommunicationRequirements { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<EconomicSituation>))]
@@ -64,11 +63,11 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<HomeSituation>))]
         public HomeSituation HomeSituation { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter))]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string ArmedForces { get; set; }
     }
 
-    public class DynamoDbNullConverter : IPropertyConverter
+    public class DynamoDbNullToStringConverter : IPropertyConverter
     {
         private static JsonSerializerOptions CreateJsonOptions()
         {
@@ -79,12 +78,12 @@ namespace EqualityInformationApi.V1.Infrastructure
             return serializerOptions;
         }
 
-        public DynamoDBEntry ToEntry(object value) => value == null ? (DynamoDBEntry) new DynamoDBNull() : (DynamoDBEntry) Document.FromJson(JsonSerializer.Serialize<object>(value, DynamoDbNullConverter.CreateJsonOptions()));
+        public DynamoDBEntry ToEntry(object value) => string.IsNullOrEmpty((string)value) ? (DynamoDBEntry) new DynamoDBNull() : (DynamoDBEntry) Document.FromJson(JsonSerializer.Serialize(value));
 
         public object FromEntry(DynamoDBEntry entry)
         {
             if (entry == null || entry.AsDynamoDBNull() != null)
-                return (object) null;
+                return string.Empty;
 
             return entry;
         }
