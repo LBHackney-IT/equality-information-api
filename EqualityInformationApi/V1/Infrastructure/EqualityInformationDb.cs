@@ -4,6 +4,9 @@ using Hackney.Core.DynamoDb.Converters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Amazon.DynamoDBv2.DocumentModel;
 
 namespace EqualityInformationApi.V1.Infrastructure
 {
@@ -16,13 +19,13 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBRangeKey]
         public Guid Id { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<string>))]
         public string AgeGroup { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Gender>))]
         public Gender Gender { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<string>))]
         public string Nationality { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Ethnicity>))]
@@ -40,7 +43,7 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<PregnancyOrMaternity>))]
         public List<PregnancyOrMaternity> PregnancyOrMaternity { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<string>))]
         public string NationalInsuranceNumber { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<LanguageInfo>))]
@@ -49,10 +52,10 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CaringResponsibilities>))]
         public CaringResponsibilities CaringResponsibilities { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<string>))]
         public string Disabled { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<List<string>>))]
         public List<string> CommunicationRequirements { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<EconomicSituation>))]
@@ -61,7 +64,29 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<HomeSituation>))]
         public HomeSituation HomeSituation { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<string>))]
         public string ArmedForces { get; set; }
+    }
+
+    public class DynamoDbNullConverter : IPropertyConverter
+    {
+        private static JsonSerializerOptions CreateJsonOptions()
+        {
+            JsonSerializerOptions serializerOptions = new JsonSerializerOptions();
+            serializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            serializerOptions.WriteIndented = true;
+            serializerOptions.Converters.Add((JsonConverter) new JsonStringEnumConverter());
+            return serializerOptions;
+        }
+
+        public DynamoDBEntry ToEntry(object value) => value == null ? (DynamoDBEntry) new DynamoDBNull() : (DynamoDBEntry) Document.FromJson(JsonSerializer.Serialize<object>(value, DynamoDbNullConverter.CreateJsonOptions()));
+
+        public object FromEntry(DynamoDBEntry entry)
+        {
+            if (entry == null || entry.AsDynamoDBNull() != null)
+                return (object) null;
+
+            return entry.AsString();
+        }
     }
 }
