@@ -61,7 +61,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             databaseResponse.Should().BeEquivalentTo(responseContent);
         }
 
-        
+
     }
 
 }
