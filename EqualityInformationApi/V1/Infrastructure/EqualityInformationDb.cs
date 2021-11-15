@@ -19,13 +19,11 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBRangeKey]
         public Guid Id { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string AgeGroup { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Gender>))]
         public Gender Gender { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string Nationality { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Ethnicity>))]
@@ -43,7 +41,6 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<PregnancyOrMaternity>))]
         public List<PregnancyOrMaternity> PregnancyOrMaternity { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string NationalInsuranceNumber { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<LanguageInfo>))]
@@ -52,7 +49,6 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CaringResponsibilities>))]
         public CaringResponsibilities CaringResponsibilities { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string Disabled { get; set; }
 
         public List<string> CommunicationRequirements { get; set; }
@@ -63,29 +59,6 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<HomeSituation>))]
         public HomeSituation HomeSituation { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbNullToStringConverter))]
         public string ArmedForces { get; set; }
-    }
-
-    public class DynamoDbNullToStringConverter : IPropertyConverter
-    {
-        private static JsonSerializerOptions CreateJsonOptions()
-        {
-            JsonSerializerOptions serializerOptions = new JsonSerializerOptions();
-            serializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            serializerOptions.WriteIndented = true;
-            serializerOptions.Converters.Add((JsonConverter) new JsonStringEnumConverter());
-            return serializerOptions;
-        }
-
-        public DynamoDBEntry ToEntry(object value) => string.IsNullOrEmpty((string)value) ? (DynamoDBEntry) new DynamoDBNull() : (DynamoDBEntry) Document.FromJson(JsonSerializer.Serialize(value));
-
-        public object FromEntry(DynamoDBEntry entry)
-        {
-            if (entry == null || entry.AsDynamoDBNull() != null)
-                return string.Empty;
-
-            return entry;
-        }
     }
 }
