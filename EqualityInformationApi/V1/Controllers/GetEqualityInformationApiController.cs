@@ -1,12 +1,10 @@
 using EqualityInformationApi.V1.Boundary.Request;
-using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.UseCase.Interfaces;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -37,13 +35,20 @@ namespace EqualityInformationApi.V1.Controllers
 
         [ProducesResponseType(typeof(List<EqualityInformationObject>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> Get([FromQuery] Guid targetId)
         {
+            if (targetId == Guid.Empty)
+                return BadRequest();
+
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
 
             var response = await _getUseCase.Execute(targetId, token).ConfigureAwait(false);
+
+            if (response == null)
+                return NotFound(response);
 
             return Ok(response);
         }

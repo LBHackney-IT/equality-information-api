@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
 using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Domain;
-using EqualityInformationApi.V1.Infrastructure;
 
 namespace EqualityInformationApi.V1.Factories
 {

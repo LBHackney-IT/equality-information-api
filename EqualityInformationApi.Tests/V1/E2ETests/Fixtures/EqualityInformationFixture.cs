@@ -1,13 +1,9 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.SimpleNotificationService;
-using Amazon.SimpleNotificationService.Model;
 using AutoFixture;
 using EqualityInformationApi.V1.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Amazon.Runtime.Internal.Util;
 
 namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 {
@@ -62,6 +58,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
         public void GivenAnEntityExists(Guid targetId)
         {
             Entity = _fixture.Build<EqualityInformationDb>()
+                .With(x => x.TargetId, Guid.NewGuid())
+                .With(x => x.Id, Guid.NewGuid())
                 .Create();
 
             Entity.TargetId = targetId;

@@ -6,7 +6,6 @@ using EqualityInformationApi.V1.Infrastructure;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -53,6 +52,9 @@ namespace EqualityInformationApi.V1.Gateways
         {
             var entity = await _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId).GetNextSetAsync()
                 .ConfigureAwait(false);
+
+            if (entity == null || !entity.Any())
+                return null;
 
             return entity.FirstOrDefault().ToDomain();
         }

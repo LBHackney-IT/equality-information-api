@@ -1,24 +1,13 @@
 using Amazon.DynamoDBv2.DataModel;
-using EqualityInformationApi.Tests.V1.E2ETests.Fixtures;
-using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
-using EqualityInformationApi.V1.Domain;
-using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Infrastructure;
-using EqualityInformationApi.V1.Infrastructure.Constants;
 using FluentAssertions;
-using Hackney.Core.Sns;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
 {
@@ -50,18 +39,21 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
+        public void ThenNotFoundIsReturned()
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
         public async Task ThenTheEntityIsReturned(IDynamoDBContext databaseContext)
         {
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var responseContent = DecodeResponse<EqualityInformationResponseObject>(_lastResponse);
 
-            var databaseResponse = await databaseContext.LoadAsync<EqualityInformationDb>(responseContent.TargetId).ConfigureAwait(false);
+            var databaseResponse = await databaseContext.QueryAsync<EqualityInformationDb>(responseContent.TargetId).GetNextSetAsync().ConfigureAwait(false);
 
-            databaseResponse.Should().BeEquivalentTo(responseContent);
+            databaseResponse.FirstOrDefault().Should().BeEquivalentTo(responseContent);
         }
-
-
     }
 
 }

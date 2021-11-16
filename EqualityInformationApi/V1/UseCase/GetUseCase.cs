@@ -1,4 +1,3 @@
-using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Gateways;
@@ -6,8 +5,6 @@ using EqualityInformationApi.V1.UseCase.Interfaces;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.UseCase
@@ -28,7 +25,7 @@ namespace EqualityInformationApi.V1.UseCase
         {
             var equalityInformation = await _gateway.Get(targetId).ConfigureAwait(false);
 
-            return equalityInformation.ToResponse();
+            return equalityInformation?.ToResponse();
         }
     }
 }

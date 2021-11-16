@@ -8,7 +8,6 @@ using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.UseCase;
 using EqualityInformationApi.V1.UseCase.Interfaces;
 using EqualityInformationApi.Versioning;
-using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;

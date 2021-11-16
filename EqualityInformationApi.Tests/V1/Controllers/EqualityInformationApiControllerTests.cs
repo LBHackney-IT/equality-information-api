@@ -6,14 +6,8 @@ using EqualityInformationApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Routing;
 using Moq;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
