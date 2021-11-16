@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.Model;
 
 namespace EqualityInformationApi.V1.Controllers
 {
@@ -40,17 +41,18 @@ namespace EqualityInformationApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> Get([FromQuery] Guid targetId)
         {
-            if (targetId == Guid.Empty)
-                return BadRequest();
+            try
+            {
+                var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
 
-            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+                var response = await _getUseCase.Execute(targetId, token).ConfigureAwait(false);
 
-            var response = await _getUseCase.Execute(targetId, token).ConfigureAwait(false);
-
-            if (response == null)
-                return NotFound(response);
-
-            return Ok(response);
+                return Ok(response);
+            }
+            catch (ResourceNotFoundException)
+            {
+                return NotFound(targetId);
+            }
         }
     }
 }

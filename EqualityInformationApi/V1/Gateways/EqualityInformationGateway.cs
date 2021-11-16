@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.Model;
 
 namespace EqualityInformationApi.V1.Gateways
 {
@@ -54,7 +55,7 @@ namespace EqualityInformationApi.V1.Gateways
                 .ConfigureAwait(false);
 
             if (entity == null || !entity.Any())
-                return null;
+                throw new ResourceNotFoundException(targetId.ToString());
 
             return entity.FirstOrDefault().ToDomain();
         }

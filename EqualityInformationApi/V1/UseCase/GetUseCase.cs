@@ -25,7 +25,7 @@ namespace EqualityInformationApi.V1.UseCase
         {
             var equalityInformation = await _gateway.Get(targetId).ConfigureAwait(false);
 
-            return equalityInformation?.ToResponse();
+            return equalityInformation.ToResponse();
         }
     }
 }
