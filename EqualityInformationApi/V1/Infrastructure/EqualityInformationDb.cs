@@ -93,12 +93,20 @@ namespace EqualityInformationApi.V1.Infrastructure
 
         public object FromEntry(DynamoDBEntry entry)
         {
-            if (entry == null || entry.AsDynamoDBNull() != null)
-                return string.Empty;
             if (typeof(T) == typeof(string))
-                return entry.AsString();
+            {
+                if (entry == null || entry.AsDynamoDBNull() != null)
+                    return string.Empty;
 
-            return entry.AsListOfString();
+                return entry.AsString();
+            }
+            else
+            {
+                if (entry == null || entry.AsDynamoDBNull() != null)
+                    return new List<string>();
+
+                return entry.AsListOfString();
+            }
         }
     }
 }
