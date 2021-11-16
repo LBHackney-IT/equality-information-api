@@ -77,11 +77,6 @@ namespace EqualityInformationApi.V1.Infrastructure
 
             if (typeof(T) == typeof(string))
             {
-                if (string.IsNullOrEmpty((string) value))
-                {
-                    return new DynamoDBNull();
-                }
-
                 entry = new Primitive { Value = value };
             }
             else
