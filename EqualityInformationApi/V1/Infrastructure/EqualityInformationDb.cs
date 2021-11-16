@@ -73,20 +73,27 @@ namespace EqualityInformationApi.V1.Infrastructure
     {
         public DynamoDBEntry ToEntry(object value)
         {
+            DynamoDBEntry entry;
+
             if (typeof(T) == typeof(string))
             {
                 if (string.IsNullOrEmpty((string) value))
                 {
                     return new DynamoDBNull();
                 }
+
+                entry = new Primitive { Value = value };
             }
             else
-            if ((List<string>) value == null || !((List<string>) value).Any())
             {
-                return new Primitive { Value = new List<string>() };
-            }
+                if ((List<string>) value == null || !((List<string>) value).Any())
+                {
+                    return new DynamoDBList();
+                }
 
-            DynamoDBEntry entry = new Primitive { Value = value };
+                var stringList = value as List<string>;
+                entry = new DynamoDBList(stringList.Select(x => new Primitive {Value = x}));
+            }
 
             return entry;
         }
