@@ -69,29 +69,6 @@ namespace EqualityInformationApi.V1.Infrastructure
         public string ArmedForces { get; set; }
     }
 
-    public class ListStringConverter : IPropertyConverter
-    {
-        public DynamoDBEntry ToEntry(object value)
-        {
-            if (string.IsNullOrEmpty((string) value))
-            {
-                return new DynamoDBNull();
-            }
-
-            DynamoDBEntry entry = new Primitive { Value = value };
-
-            return entry;
-        }
-
-        public object FromEntry(DynamoDBEntry entry)
-        {
-            if (entry == null || entry.AsDynamoDBNull() != null)
-                return string.Empty;
-
-            return entry.ToString();
-        }
-    }
-
     public class DynamoDbNullConverter<T> : IPropertyConverter
     {
         public DynamoDBEntry ToEntry(object value)
@@ -106,7 +83,7 @@ namespace EqualityInformationApi.V1.Infrastructure
             else
             if ((List<string>) value == null || !((List<string>) value).Any())
             {
-                return new DynamoDBNull();
+                return new Primitive { Value = new List<string>() };
             }
 
             DynamoDBEntry entry = new Primitive { Value = value };
