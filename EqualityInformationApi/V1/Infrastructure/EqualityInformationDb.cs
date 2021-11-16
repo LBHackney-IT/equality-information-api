@@ -92,7 +92,7 @@ namespace EqualityInformationApi.V1.Infrastructure
                 }
 
                 var stringList = value as List<string>;
-                entry = new DynamoDBList(stringList.Select(x => new Primitive {Value = x}));
+                entry = new DynamoDBList(stringList.Select(x => new Primitive { Value = x }));
             }
 
             return entry;
