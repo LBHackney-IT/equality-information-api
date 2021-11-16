@@ -56,7 +56,7 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<string>))]
         public string Disabled { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<List<string>>))]
         public List<string> CommunicationRequirements { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<EconomicSituation>))]
