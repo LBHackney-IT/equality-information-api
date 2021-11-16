@@ -3,7 +3,6 @@ using EqualityInformationApi.Tests.V1.E2ETests.Fixtures;
 using EqualityInformationApi.Tests.V1.E2ETests.Steps;
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Domain;
-using Hackney.Core.Sns;
 using Hackney.Core.Testing.DynamoDb;
 using System;
 using System.Collections.Generic;
@@ -14,23 +13,21 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
 {
     [Story(
         AsA = "Service",
-        IWant = "an endpoint to patch equality information",
-        SoThat = "it is possible to patch equality information related to a person")]
+        IWant = "an endpoint to get equality information",
+        SoThat = "it is possible to get equality information related to a person")]
     [Collection("Aws collection")]
-    public class PatchTests : IDisposable
+    public class GetTests : IDisposable
     {
         private readonly IDynamoDbFixture _dbFixture;
-        private readonly SnsEventVerifier<EntityEventSns> _snsVerifier;
         private readonly EqualityInformationFixture _testFixture;
-        private readonly PatchSteps _steps;
+        private readonly GetSteps _steps;
         private readonly Fixture _fixture = new Fixture();
 
-        public PatchTests(MockWebApplicationFactory<Startup> startupFixture)
+        public GetTests(MockWebApplicationFactory<Startup> startupFixture)
         {
             _dbFixture = startupFixture.DynamoDbFixture;
-            _snsVerifier = startupFixture.SnsVerifer;
             _testFixture = new EqualityInformationFixture(_dbFixture.DynamoDbContext, startupFixture.SimpleNotificationService);
-            _steps = new PatchSteps(startupFixture.Client);
+            _steps = new GetSteps(startupFixture.Client);
         }
 
         public void Dispose()
@@ -54,7 +51,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         }
 
         [Fact]
-        public void ServicePatchesEntityCorrectly()
+        public void ServiceGetsEntityCorrectly()
         {
             var request = _fixture.Build<PatchEqualityInformationObject>()
                 .With(x => x.NationalInsuranceNumber, (string) null)
@@ -62,7 +59,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                 .Create();
 
             this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, _testFixture.Entity.Id.ToString()))
+                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
                 .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
                 .BDDfy();
         }
@@ -74,8 +71,19 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             request.TargetId = Guid.Empty;
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, Guid.NewGuid().ToString()))
+                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
                 .Then(t => _steps.ThenBadRequestIsReturned())
+                .BDDfy();
+        }
+
+        [Fact]
+        public void PatchServiceReturnsNotFoundtWhenTargetIdEmpty()
+        {
+            var request = _fixture.Create<PatchEqualityInformationObject>();
+
+            this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
+                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
+                .Then(t => _steps.ThenNotFoundIsReturned())
                 .BDDfy();
         }
     }

@@ -1,10 +1,7 @@
 using EqualityInformationApi.V1.Boundary.Request;
-using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EqualityInformationApi.V1.Factories
 {

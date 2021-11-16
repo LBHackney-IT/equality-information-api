@@ -6,9 +6,9 @@ using EqualityInformationApi.V1.Infrastructure;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.Model;
 
 namespace EqualityInformationApi.V1.Gateways
 {
@@ -46,6 +46,18 @@ namespace EqualityInformationApi.V1.Gateways
             await _dynamoDbContext.SaveAsync(entity).ConfigureAwait(false);
 
             return entity.ToDomain();
+        }
+
+        [LogCall]
+        public async Task<EqualityInformation> Get(Guid targetId)
+        {
+            var entity = await _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId).GetNextSetAsync()
+                .ConfigureAwait(false);
+
+            if (entity == null || !entity.Any())
+                throw new ResourceNotFoundException(targetId.ToString());
+
+            return entity.FirstOrDefault().ToDomain();
         }
     }
 }
