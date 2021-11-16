@@ -19,13 +19,13 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBRangeKey]
         public Guid Id { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(StringConverter))]
         public string AgeGroup { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Gender>))]
         public Gender Gender { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(StringConverter))]
         public string Nationality { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Ethnicity>))]
@@ -43,7 +43,7 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<PregnancyOrMaternity>))]
         public List<PregnancyOrMaternity> PregnancyOrMaternity { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(StringConverter))]
         public string NationalInsuranceNumber { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<LanguageInfo>))]
@@ -52,7 +52,7 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CaringResponsibilities>))]
         public CaringResponsibilities CaringResponsibilities { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(StringConverter))]
         public string Disabled { get; set; }
 
         [DynamoDBProperty]
@@ -64,7 +64,30 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<HomeSituation>))]
         public HomeSituation HomeSituation { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(StringConverter))]
         public string ArmedForces { get; set; }
+    }
+
+    public class StringConverter : IPropertyConverter
+    {
+        public DynamoDBEntry ToEntry(object value)
+        {
+            if (string.IsNullOrEmpty((string) value))
+            {
+                return new DynamoDBNull();
+            }
+
+            DynamoDBEntry entry = new Primitive { Value = value };
+
+            return entry;
+        }
+
+        public object FromEntry(DynamoDBEntry entry)
+        {
+            if (entry == null || entry.AsDynamoDBNull() != null)
+                return string.Empty;
+
+            return entry.ToString();
+        }
     }
 }
