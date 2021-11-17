@@ -1,24 +1,22 @@
-using Amazon.DynamoDBv2.DataModel;
 using Amazon.SimpleNotificationService;
 using AutoFixture;
 using EqualityInformationApi.V1.Infrastructure;
+using Hackney.Core.Testing.DynamoDb;
 using System;
-using System.Collections.Generic;
 
 namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 {
     public class EqualityInformationFixture : IDisposable
     {
-        public IDynamoDBContext DbContext { get; private set; }
+        public IDynamoDbFixture DbFixture { get; private set; }
         private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
         private readonly Fixture _fixture;
 
         public EqualityInformationDb Entity { get; private set; }
-        public List<EqualityInformationDb> Entities { get; private set; } = new List<EqualityInformationDb>();
 
-        public EqualityInformationFixture(IDynamoDBContext context, IAmazonSimpleNotificationService amazonSimpleNotificationService)
+        public EqualityInformationFixture(IDynamoDbFixture dbFixture, IAmazonSimpleNotificationService amazonSimpleNotificationService)
         {
-            DbContext = context;
+            DbFixture = dbFixture;
             _amazonSimpleNotificationService = amazonSimpleNotificationService;
             _fixture = new Fixture();
         }
@@ -34,19 +32,6 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
         {
             if (disposing && !_disposed)
             {
-                if (null != Entity)
-                {
-                    DbContext.DeleteAsync<EqualityInformationDb>(Entity.TargetId, Entity.Id).GetAwaiter().GetResult();
-                }
-
-                if (Entities.Count != 0)
-                {
-                    foreach (var entity in Entities)
-                    {
-                        DbContext.DeleteAsync<EqualityInformationDb>(entity.TargetId, entity.Id).GetAwaiter().GetResult();
-                    }
-                }
-
                 _disposed = true;
             }
         }
@@ -60,11 +45,13 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
             Entity = _fixture.Build<EqualityInformationDb>()
                 .With(x => x.TargetId, Guid.NewGuid())
                 .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.VersionNumber, (int?)null)
                 .Create();
 
             Entity.TargetId = targetId;
 
-            DbContext.SaveAsync(Entity).GetAwaiter().GetResult();
+            DbFixture.SaveEntityAsync(Entity).GetAwaiter().GetResult();
+            Entity.VersionNumber = 0;
         }
     }
 }

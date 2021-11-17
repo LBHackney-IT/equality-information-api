@@ -55,7 +55,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
             var response = await _classUnderTest.Execute(request, token).ConfigureAwait(false);
 
             // Assert
-            response.Should().BeEquivalentTo(gatewayResponse);
+            response.Should().BeEquivalentTo(gatewayResponse.ToResponse());
 
             _mockSnsGateway.Verify(x => x.Publish(It.IsAny<EntityEventSns>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.Model;
 
 namespace EqualityInformationApi.V1.Gateways
 {
@@ -37,6 +36,7 @@ namespace EqualityInformationApi.V1.Gateways
             return entity.ToDomain();
         }
 
+        [LogCall]
         public async Task<EqualityInformation> Update(PatchEqualityInformationObject request)
         {
             var entity = request.ToDomain().ToDatabase();
@@ -51,13 +51,11 @@ namespace EqualityInformationApi.V1.Gateways
         [LogCall]
         public async Task<EqualityInformation> Get(Guid targetId)
         {
-            var entity = await _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId).GetNextSetAsync()
-                .ConfigureAwait(false);
+            var results = await _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId)
+                                                .GetNextSetAsync()
+                                                .ConfigureAwait(false);
 
-            if (entity == null || !entity.Any())
-                throw new ResourceNotFoundException(targetId.ToString());
-
-            return entity.FirstOrDefault().ToDomain();
+            return results?.FirstOrDefault()?.ToDomain();
         }
     }
 }

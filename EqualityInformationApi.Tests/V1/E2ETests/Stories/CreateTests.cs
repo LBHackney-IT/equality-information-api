@@ -30,7 +30,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         {
             _dbFixture = startupFixture.DynamoDbFixture;
             _snsVerifier = startupFixture.SnsVerifer;
-            _testFixture = new EqualityInformationFixture(_dbFixture.DynamoDbContext, startupFixture.SimpleNotificationService);
+            _testFixture = new EqualityInformationFixture(_dbFixture, startupFixture.SimpleNotificationService);
             _steps = new CreateSteps(startupFixture.Client);
         }
 
@@ -98,7 +98,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
                 .When(w => _steps.WhenTheApiIsCalledToCreate(request))
-                .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
+                .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
                 .And(t => _steps.ThenTheEqualityInformationCreatedEventIsRaised(_testFixture, _snsVerifier))
                 .BDDfy();
         }

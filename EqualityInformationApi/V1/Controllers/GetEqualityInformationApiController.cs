@@ -1,15 +1,15 @@
 using EqualityInformationApi.V1.Boundary.Request;
+using EqualityInformationApi.V1.Factories;
+using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.UseCase.Interfaces;
-using Hackney.Core.Http;
-using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.Model;
 
 namespace EqualityInformationApi.V1.Controllers
 {
@@ -20,18 +20,10 @@ namespace EqualityInformationApi.V1.Controllers
     public class GetEqualityInformationApiController : BaseController
     {
         private readonly IGetUseCase _getUseCase;
-        private readonly ITokenFactory _tokenFactory;
-        private readonly IHttpContextWrapper _contextWrapper;
 
-        public GetEqualityInformationApiController(
-            IGetUseCase getUseCase,
-            ITokenFactory tokenFactory,
-            IHttpContextWrapper contextWrapper)
+        public GetEqualityInformationApiController(IGetUseCase getUseCase)
         {
             _getUseCase = getUseCase;
-
-            _tokenFactory = tokenFactory;
-            _contextWrapper = contextWrapper;
         }
 
         [ProducesResponseType(typeof(List<EqualityInformationObject>), StatusCodes.Status201Created)]
@@ -41,18 +33,16 @@ namespace EqualityInformationApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> Get([FromQuery] Guid targetId)
         {
-            try
-            {
-                var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+            var response = await _getUseCase.Execute(targetId).ConfigureAwait(false);
+            if (response is null) return NotFound(targetId);
 
-                var response = await _getUseCase.Execute(targetId, token).ConfigureAwait(false);
+            var eTag = string.Empty;
+            if (response.VersionNumber.HasValue)
+                eTag = response.VersionNumber.ToString();
 
-                return Ok(response);
-            }
-            catch (ResourceNotFoundException)
-            {
-                return NotFound(targetId);
-            }
+            HttpContext.Response.Headers.Add(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{eTag}\"").Tag);
+
+            return Ok(response.ToResponse());
         }
     }
 }

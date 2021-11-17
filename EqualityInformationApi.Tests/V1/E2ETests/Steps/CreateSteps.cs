@@ -92,7 +92,9 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
         {
             var responseContent = DecodeResponse<EqualityInformationDb>(_lastResponse);
 
-            var databaseResponse = await fixture.DbContext.LoadAsync<EqualityInformationDb>(responseContent.TargetId, responseContent.Id).ConfigureAwait(false);
+            var databaseResponse = await fixture.DbFixture.DynamoDbContext
+                                                .LoadAsync<EqualityInformationDb>(responseContent.TargetId, responseContent.Id)
+                                                .ConfigureAwait(false);
 
             Action<EntityEventSns> verifyFunc = (actual) =>
             {

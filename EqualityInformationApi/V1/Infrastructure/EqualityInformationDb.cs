@@ -62,5 +62,8 @@ namespace EqualityInformationApi.V1.Infrastructure
 
         [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<string>))]
         public string ArmedForces { get; set; }
+
+        [DynamoDBVersion]
+        public int? VersionNumber { get; set; }
     }
 }

@@ -26,7 +26,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         public GetTests(MockWebApplicationFactory<Startup> startupFixture)
         {
             _dbFixture = startupFixture.DynamoDbFixture;
-            _testFixture = new EqualityInformationFixture(_dbFixture.DynamoDbContext, startupFixture.SimpleNotificationService);
+            _testFixture = new EqualityInformationFixture(_dbFixture, startupFixture.SimpleNotificationService);
             _steps = new GetSteps(startupFixture.Client);
         }
 
@@ -60,29 +60,17 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
 
             this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
                 .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
-                .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
+                .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
                 .BDDfy();
         }
 
         [Fact]
-        public void PatchServiceReturnsBadRequestWhenTargetIdEmpty()
+        public void ServiceReturnsNotFoundWhenTargetIdNotFound()
         {
-            var request = _fixture.Create<PatchEqualityInformationObject>();
-            request.TargetId = Guid.Empty;
+            var id = Guid.NewGuid();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
-                .Then(t => _steps.ThenBadRequestIsReturned())
-                .BDDfy();
-        }
-
-        [Fact]
-        public void PatchServiceReturnsNotFoundtWhenTargetIdEmpty()
-        {
-            var request = _fixture.Create<PatchEqualityInformationObject>();
-
-            this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
+                .When(w => _steps.WhenTheApiIsCalledToGet(id))
                 .Then(t => _steps.ThenNotFoundIsReturned())
                 .BDDfy();
         }
