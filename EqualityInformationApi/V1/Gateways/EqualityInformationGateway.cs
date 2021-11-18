@@ -3,6 +3,7 @@ using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Infrastructure;
+using EqualityInformationApi.V1.Infrastructure.Exceptions;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;
@@ -37,12 +38,19 @@ namespace EqualityInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<EqualityInformation> Update(PatchEqualityInformationObject request)
+        public async Task<EqualityInformation> Update(PatchEqualityInformationObject request, int? ifMatch)
         {
+            var existingRecord = await _dynamoDbContext.LoadAsync<EqualityInformationDb>(request.TargetId, request.Id)
+                                                       .ConfigureAwait(false);
+            if (existingRecord == null) return null;
+
+            if (ifMatch != existingRecord.VersionNumber)
+                throw new VersionNumberConflictException(ifMatch, existingRecord.VersionNumber);
+
             var entity = request.ToDomain().ToDatabase();
+            entity.VersionNumber = existingRecord.VersionNumber;
 
             _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for {entity.TargetId}.{entity.Id}");
-
             await _dynamoDbContext.SaveAsync(entity).ConfigureAwait(false);
 
             return entity.ToDomain();
@@ -51,11 +59,20 @@ namespace EqualityInformationApi.V1.Gateways
         [LogCall]
         public async Task<EqualityInformation> Get(Guid targetId)
         {
+            _logger.LogDebug($"Calling IDynamoDBContext.QueryAsync for target id {targetId}. Expecting 0 or 1 result.");
+
             var results = await _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId)
                                                 .GetNextSetAsync()
                                                 .ConfigureAwait(false);
 
-            return results?.FirstOrDefault()?.ToDomain();
+            if ((results is null) || !results.Any())
+                return null;
+
+            if (results.Count > 1)
+                    throw new ApplicationException($"{results.Count} EqualityInformationDb records found for target id {targetId}. "
+                                                  + "There should only be 0 or 1.");
+
+            return results.First().ToDomain();
         }
     }
 }

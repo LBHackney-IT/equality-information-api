@@ -1,8 +1,10 @@
 using Amazon.SimpleNotificationService;
 using AutoFixture;
+using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Infrastructure;
 using Hackney.Core.Testing.DynamoDb;
 using System;
+using System.Collections.Generic;
 
 namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
 {
@@ -43,12 +45,15 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
         public void GivenAnEntityExists(Guid targetId)
         {
             Entity = _fixture.Build<EqualityInformationDb>()
-                .With(x => x.TargetId, Guid.NewGuid())
+                .With(x => x.TargetId, targetId)
                 .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.NationalInsuranceNumber, "NZ335522D")
+                .With(x => x.Languages, new List<LanguageInfo>
+                {
+                    new LanguageInfo() { IsPrimary = true, Language = "English" }
+                })
                 .With(x => x.VersionNumber, (int?)null)
                 .Create();
-
-            Entity.TargetId = targetId;
 
             DbFixture.SaveEntityAsync(Entity).GetAwaiter().GetResult();
             Entity.VersionNumber = 0;

@@ -65,6 +65,21 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         }
 
         [Fact]
+        public void ServiceReturnsBadRequestWhenTooManyRecords()
+        {
+            var request = _fixture.Build<PatchEqualityInformationObject>()
+                .With(x => x.NationalInsuranceNumber, (string) null)
+                .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
+                .Create();
+
+            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
+                .And(x => _testFixture.GivenAnEntityExists(request.TargetId))
+                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
+                .Then(t => _steps.Then500IsReturned())
+                .BDDfy();
+        }
+
+        [Fact]
         public void ServiceReturnsNotFoundWhenTargetIdNotFound()
         {
             var id = Guid.NewGuid();

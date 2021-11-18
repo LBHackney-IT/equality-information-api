@@ -44,6 +44,11 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
+        public void Then500IsReturned()
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        }
+
         public async Task ThenTheEntityIsReturned(IDynamoDBContext databaseContext)
         {
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.OK);

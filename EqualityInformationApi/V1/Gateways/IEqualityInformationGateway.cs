@@ -9,7 +9,7 @@ namespace EqualityInformationApi.V1.Gateways
     {
         Task<EqualityInformation> Create(EqualityInformationObject request);
 
-        Task<EqualityInformation> Update(PatchEqualityInformationObject request);
+        Task<EqualityInformation> Update(PatchEqualityInformationObject request, int? ifMatch);
 
         Task<EqualityInformation> Get(Guid targetId);
     }

@@ -47,6 +47,24 @@ namespace EqualityInformationApi.Tests
             Client = CreateClient();
         }
 
+        private bool _disposed = false;
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && _disposed)
+            {
+                if (DynamoDbFixture != null)
+                    DynamoDbFixture.Dispose();
+                if (SnsVerifer != null)
+                    SnsVerifer.Dispose();
+                if (Client != null)
+                    Client.Dispose();
+
+                base.Dispose(disposing);
+
+                _disposed = true;
+            }
+        }
+
         private static void EnsureEnvVarConfigured(string name, string defaultValue)
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))

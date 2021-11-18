@@ -26,11 +26,12 @@ namespace EqualityInformationApi.V1.UseCase
             _snsFactory = snsFactory;
         }
 
-        public async Task<EqualityInformationResponseObject> Execute(PatchEqualityInformationObject request, Token token)
+        public async Task<EqualityInformationResponseObject> Execute(PatchEqualityInformationObject request, Token token, int? ifMatch)
         {
-            var equalityInformation = await _gateway.Create(request).ConfigureAwait(false);
+            var equalityInformation = await _gateway.Update(request, ifMatch).ConfigureAwait(false);
+            if (equalityInformation is null) return null;
 
-            var createSnsMessage = _snsFactory.Create(equalityInformation, token);
+            var createSnsMessage = _snsFactory.Update(equalityInformation, token);
             var tenureTopicArn = Environment.GetEnvironmentVariable("EQUALITY_INFORMATION_SNS_ARN");
 
             await _snsGateway.Publish(createSnsMessage, tenureTopicArn).ConfigureAwait(false);

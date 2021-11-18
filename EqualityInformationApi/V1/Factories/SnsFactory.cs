@@ -31,5 +31,29 @@ namespace EqualityInformationApi.V1.Factories
                 }
             };
         }
+
+        public EntityEventSns Update(EqualityInformation equalityInformation, Token token)
+        {
+            return new EntityEventSns
+            {
+                CorrelationId = Guid.NewGuid(),
+                DateTime = DateTime.UtcNow,
+                EntityId = equalityInformation.Id,
+                Id = Guid.NewGuid(),
+                EventType = UpdateEventConstants.EVENTTYPE,
+                Version = UpdateEventConstants.V1VERSION,
+                SourceDomain = UpdateEventConstants.SOURCEDOMAIN,
+                SourceSystem = UpdateEventConstants.SOURCESYSTEM,
+                User = new User
+                {
+                    Name = token.Name,
+                    Email = token.Email
+                },
+                EventData = new EventData
+                {
+                    NewData = equalityInformation
+                }
+            };
+        }
     }
 }

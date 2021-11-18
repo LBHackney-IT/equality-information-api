@@ -1,12 +1,17 @@
 using EqualityInformationApi.V1.Boundary.Request;
+using EqualityInformationApi.V1.Infrastructure.Exceptions;
 using EqualityInformationApi.V1.UseCase.Interfaces;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using HeaderConstants = EqualityInformationApi.V1.Infrastructure.HeaderConstants;
 
 namespace EqualityInformationApi.V1.Controllers
 {
@@ -31,20 +36,48 @@ namespace EqualityInformationApi.V1.Controllers
             _contextWrapper = contextWrapper;
         }
 
+        private int? GetIfMatchFromHeader()
+        {
+            var header = HttpContext.Request.Headers.GetHeaderValue(HeaderConstants.IfMatch);
+
+            if (header == null)
+                return null;
+
+            _ = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
+
+            if (entityTagHeaderValue == null)
+                return null;
+
+            var version = entityTagHeaderValue.Tag.Replace("\"", string.Empty);
+
+            if (int.TryParse(version, out var numericValue))
+                return numericValue;
+
+            return null;
+        }
+
         [ProducesResponseType(typeof(EqualityInformationObject), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch]
         [Route("{id}")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> Patch([FromRoute] string id, [FromBody] PatchEqualityInformationObject request)
+        public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchEqualityInformationObject request)
         {
+            var ifMatch = GetIfMatchFromHeader();
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
             request.Id = id;
 
-            var response = await _patchUseCase.Execute(request, token).ConfigureAwait(false);
+            try
+            {
+                var response = await _patchUseCase.Execute(request, token, ifMatch).ConfigureAwait(false);
+                if (response is null) return NotFound(id);
 
-            var location = $"/api/v1/equality-information/{response.Id}/?targetId={response.TargetId}";
-            return Created(location, response);
+                return Ok(response);
+            }
+            catch (VersionNumberConflictException vncErr)
+            {
+                return Conflict(vncErr.Message);
+            }
         }
     }
 }
