@@ -26,7 +26,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         public GetTests(MockWebApplicationFactory<Startup> startupFixture)
         {
             _dbFixture = startupFixture.DynamoDbFixture;
-            _testFixture = new EqualityInformationFixture(_dbFixture.DynamoDbContext, startupFixture.SimpleNotificationService);
+            _testFixture = new EqualityInformationFixture(_dbFixture, startupFixture.SimpleNotificationService);
             _steps = new GetSteps(startupFixture.Client);
         }
 
@@ -58,31 +58,34 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                 .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
                 .Create();
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
+            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
                 .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
-                .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
+                .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
                 .BDDfy();
         }
 
         [Fact]
-        public void PatchServiceReturnsBadRequestWhenTargetIdEmpty()
+        public void ServiceReturnsBadRequestWhenTooManyRecords()
         {
-            var request = _fixture.Create<PatchEqualityInformationObject>();
-            request.TargetId = Guid.Empty;
+            var request = _fixture.Build<PatchEqualityInformationObject>()
+                .With(x => x.NationalInsuranceNumber, (string) null)
+                .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
+                .Create();
 
-            this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
+            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
+                .And(x => _testFixture.GivenAnEntityExists(request.TargetId, Guid.NewGuid()))
                 .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
-                .Then(t => _steps.ThenBadRequestIsReturned())
+                .Then(t => _steps.Then500IsReturned())
                 .BDDfy();
         }
 
         [Fact]
-        public void PatchServiceReturnsNotFoundtWhenTargetIdEmpty()
+        public void ServiceReturnsNotFoundWhenTargetIdNotFound()
         {
-            var request = _fixture.Create<PatchEqualityInformationObject>();
+            var id = Guid.NewGuid();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
+                .When(w => _steps.WhenTheApiIsCalledToGet(id))
                 .Then(t => _steps.ThenNotFoundIsReturned())
                 .BDDfy();
         }

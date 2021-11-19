@@ -44,6 +44,11 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
+        public void Then500IsReturned()
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        }
+
         public async Task ThenTheEntityIsReturned(IDynamoDBContext databaseContext)
         {
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -51,8 +56,14 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             var responseContent = DecodeResponse<EqualityInformationResponseObject>(_lastResponse);
 
             var databaseResponse = await databaseContext.QueryAsync<EqualityInformationDb>(responseContent.TargetId).GetNextSetAsync().ConfigureAwait(false);
+            var dbEntity = databaseResponse.FirstOrDefault();
+            dbEntity.Should().BeEquivalentTo(responseContent);
 
-            databaseResponse.FirstOrDefault().Should().BeEquivalentTo(responseContent);
+            var expectedEtagValue = $"\"{dbEntity.VersionNumber}\"";
+            _lastResponse.Headers.ETag.Tag.Should().Be(expectedEtagValue);
+            var eTagHeaders = _lastResponse.Headers.GetValues(HeaderConstants.ETag);
+            eTagHeaders.Count().Should().Be(1);
+            eTagHeaders.First().Should().Be(expectedEtagValue);
         }
     }
 

@@ -3,25 +3,28 @@ using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Infrastructure;
+using EqualityInformationApi.V1.Infrastructure.Exceptions;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.Model;
 
 namespace EqualityInformationApi.V1.Gateways
 {
     public class EqualityInformationGateway : IEqualityInformationGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
+        private readonly IEntityUpdater _updater;
         private readonly ILogger<EqualityInformationGateway> _logger;
 
         public EqualityInformationGateway(
             IDynamoDBContext dynamoDbContext,
+            IEntityUpdater updater,
             ILogger<EqualityInformationGateway> logger)
         {
             _dynamoDbContext = dynamoDbContext;
+            _updater = updater;
             _logger = logger;
         }
 
@@ -37,27 +40,43 @@ namespace EqualityInformationApi.V1.Gateways
             return entity.ToDomain();
         }
 
-        public async Task<EqualityInformation> Update(PatchEqualityInformationObject request)
+        [LogCall]
+        public async Task<UpdateEntityResult<EqualityInformationDb>> Update(PatchEqualityInformationObject request, string bodyText, int? ifMatch)
         {
-            var entity = request.ToDomain().ToDatabase();
+            var existingRecord = await _dynamoDbContext.LoadAsync<EqualityInformationDb>(request.TargetId, request.Id)
+                                                       .ConfigureAwait(false);
+            if (existingRecord == null) return null;
 
-            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for {entity.TargetId}.{entity.Id}");
+            if (ifMatch != existingRecord.VersionNumber)
+                throw new VersionNumberConflictException(ifMatch, existingRecord.VersionNumber);
 
-            await _dynamoDbContext.SaveAsync(entity).ConfigureAwait(false);
+            var response = _updater.UpdateEntity(existingRecord, bodyText, request);
+            if (response.NewValues.Any())
+            {
+                _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for {request.TargetId}.{request.Id}");
+                await _dynamoDbContext.SaveAsync(response.UpdatedEntity).ConfigureAwait(false);
+            }
 
-            return entity.ToDomain();
+            return response;
         }
 
         [LogCall]
         public async Task<EqualityInformation> Get(Guid targetId)
         {
-            var entity = await _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId).GetNextSetAsync()
-                .ConfigureAwait(false);
+            _logger.LogDebug($"Calling IDynamoDBContext.QueryAsync for target id {targetId}. Expecting 0 or 1 result.");
 
-            if (entity == null || !entity.Any())
-                throw new ResourceNotFoundException(targetId.ToString());
+            var results = await _dynamoDbContext.QueryAsync<EqualityInformationDb>(targetId)
+                                                .GetNextSetAsync()
+                                                .ConfigureAwait(false);
 
-            return entity.FirstOrDefault().ToDomain();
+            if ((results is null) || !results.Any())
+                return null;
+
+            if (results.Count > 1)
+                throw new ApplicationException($"{results.Count} EqualityInformationDb records found for target id {targetId}. "
+                                              + "There should only be 0 or 1.");
+
+            return results.First().ToDomain();
         }
     }
 }

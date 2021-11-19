@@ -14,6 +14,7 @@ using Hackney.Core.HealthCheck;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
@@ -38,6 +39,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using HeaderConstants = EqualityInformationApi.V1.Infrastructure.HeaderConstants;
+using CoreHeaderConstants = Hackney.Core.Middleware.HeaderConstants;
 
 namespace EqualityInformationApi
 {
@@ -158,6 +161,7 @@ namespace EqualityInformationApi
             services.AddHttpContextWrapper();
 
             services.AddScoped<ISnsFactory, SnsFactory>();
+            services.AddScoped<IEntityUpdater, EntityUpdater>();
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -186,7 +190,7 @@ namespace EqualityInformationApi
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .WithExposedHeaders("x-correlation-id"));
+                .WithExposedHeaders(HeaderConstants.ETag, HeaderConstants.IfMatch, CoreHeaderConstants.CorrelationId));
 
             if (env.IsDevelopment())
             {
@@ -201,6 +205,8 @@ namespace EqualityInformationApi
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
             app.UseXRay("equality-information-api");
+
+            app.EnableRequestBodyRewind();
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();

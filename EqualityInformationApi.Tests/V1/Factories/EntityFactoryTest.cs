@@ -1,8 +1,10 @@
 using AutoFixture;
+using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Infrastructure;
 using FluentAssertions;
+using System;
 using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Factories
@@ -38,6 +40,7 @@ namespace EqualityInformationApi.Tests.V1.Factories
             response.EconomicSituation.Should().Be(entity.EconomicSituation);
             response.HomeSituation.Should().Be(entity.HomeSituation);
             response.ArmedForces.Should().Be(entity.ArmedForces);
+            response.VersionNumber.Should().Be(entity.VersionNumber);
         }
 
 
@@ -68,6 +71,43 @@ namespace EqualityInformationApi.Tests.V1.Factories
             response.EconomicSituation.Should().Be(domain.EconomicSituation);
             response.HomeSituation.Should().Be(domain.HomeSituation);
             response.ArmedForces.Should().Be(domain.ArmedForces);
+            response.VersionNumber.Should().Be(domain.VersionNumber);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void EqualityInformationObjectToDomain(bool hasId)
+        {
+            var id = hasId ? Guid.NewGuid() : Guid.Empty;
+            // Arrange
+            var request = _fixture.Build<EqualityInformationObject>()
+                                  .With(x => x.TargetId, id)
+                                  .Create();
+
+            // Act
+            var response = request.ToDomain();
+
+            // Assert
+            if (hasId) response.Id.Should().Be(id);
+            else response.Id.Should().NotBeEmpty();
+
+            response.TargetId.Should().Be(request.TargetId);
+            response.Gender.Should().Be(request.Gender);
+            response.Nationality.Should().Be(request.Nationality);
+            response.Ethnicity.Should().Be(request.Ethnicity);
+            response.ReligionOrBelief.Should().Be(request.ReligionOrBelief);
+            response.SexualOrientation.Should().Be(request.SexualOrientation);
+            response.MarriageOrCivilPartnership.Should().Be(request.MarriageOrCivilPartnership);
+            response.PregnancyOrMaternity.Should().BeEquivalentTo(request.PregnancyOrMaternity);
+            response.NationalInsuranceNumber.Should().Be(request.NationalInsuranceNumber);
+            response.Languages.Should().BeEquivalentTo(request.Languages);
+            response.CaringResponsibilities.Should().Be(request.CaringResponsibilities);
+            response.Disabled.Should().Be(request.Disabled);
+            response.CommunicationRequirements.Should().BeEquivalentTo(request.CommunicationRequirements);
+            response.EconomicSituation.Should().Be(request.EconomicSituation);
+            response.HomeSituation.Should().Be(request.HomeSituation);
+            response.ArmedForces.Should().Be(request.ArmedForces);
         }
     }
 }

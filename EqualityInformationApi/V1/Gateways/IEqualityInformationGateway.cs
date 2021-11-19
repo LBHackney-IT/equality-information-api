@@ -1,5 +1,6 @@
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Domain;
+using EqualityInformationApi.V1.Infrastructure;
 using System;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace EqualityInformationApi.V1.Gateways
     {
         Task<EqualityInformation> Create(EqualityInformationObject request);
 
-        Task<EqualityInformation> Update(PatchEqualityInformationObject request);
+        Task<UpdateEntityResult<EqualityInformationDb>> Update(PatchEqualityInformationObject request, string bodyText, int? ifMatch);
 
         Task<EqualityInformation> Get(Guid targetId);
     }
