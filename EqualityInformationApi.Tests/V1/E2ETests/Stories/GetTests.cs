@@ -58,7 +58,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                 .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
                 .Create();
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
+            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
                 .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
                 .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
                 .BDDfy();
@@ -72,8 +72,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                 .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
                 .Create();
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
-                .And(x => _testFixture.GivenAnEntityExists(request.TargetId))
+            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
+                .And(x => _testFixture.GivenAnEntityExists(request.TargetId, Guid.NewGuid()))
                 .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
                 .Then(t => _steps.Then500IsReturned())
                 .BDDfy();

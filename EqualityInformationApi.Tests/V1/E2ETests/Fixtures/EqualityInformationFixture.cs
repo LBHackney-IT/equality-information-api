@@ -42,11 +42,11 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
         {
         }
 
-        public void GivenAnEntityExists(Guid targetId)
+        public void GivenAnEntityExists(Guid targetId, Guid id)
         {
             Entity = _fixture.Build<EqualityInformationDb>()
                 .With(x => x.TargetId, targetId)
-                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Id, id)
                 .With(x => x.NationalInsuranceNumber, "NZ335522D")
                 .With(x => x.Languages, new List<LanguageInfo>
                 {

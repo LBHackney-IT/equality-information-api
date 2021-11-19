@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
@@ -26,17 +27,20 @@ namespace EqualityInformationApi.V1.UseCase
             _snsFactory = snsFactory;
         }
 
-        public async Task<EqualityInformationResponseObject> Execute(PatchEqualityInformationObject request, Token token, int? ifMatch)
+        public async Task<EqualityInformationResponseObject> Execute(PatchEqualityInformationObject request, string requestBody, Token token, int? ifMatch)
         {
-            var equalityInformation = await _gateway.Update(request, ifMatch).ConfigureAwait(false);
-            if (equalityInformation is null) return null;
+            var result = await _gateway.Update(request, requestBody, ifMatch).ConfigureAwait(false);
+            if (result is null) return null;
 
-            var createSnsMessage = _snsFactory.Update(equalityInformation, token);
-            var tenureTopicArn = Environment.GetEnvironmentVariable("EQUALITY_INFORMATION_SNS_ARN");
+            if (result.NewValues.Any())
+            {
+                var createSnsMessage = _snsFactory.Update(result, token);
+                var tenureTopicArn = Environment.GetEnvironmentVariable("EQUALITY_INFORMATION_SNS_ARN");
 
-            await _snsGateway.Publish(createSnsMessage, tenureTopicArn).ConfigureAwait(false);
+                await _snsGateway.Publish(createSnsMessage, tenureTopicArn).ConfigureAwait(false);
+            }
 
-            return equalityInformation.ToResponse();
+            return result.UpdatedEntity.ToDomain().ToResponse();
         }
     }
 }

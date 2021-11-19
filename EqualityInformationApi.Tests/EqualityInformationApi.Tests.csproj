@@ -21,6 +21,7 @@
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.2.57" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.1.29" />
     <PackageReference Include="coverlet.msbuild" Version="3.0.3" />
+    <PackageReference Include="DeepCloner" Version="0.10.3" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Hackney.Core.Testing.DynamoDb" Version="1.57.0" />
     <PackageReference Include="Hackney.Core.Testing.Shared" Version="1.54.0" />

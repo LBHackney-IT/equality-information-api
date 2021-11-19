@@ -3,12 +3,14 @@ using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Gateways;
+using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.UseCase;
 using FluentAssertions;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -24,6 +26,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         private readonly PatchUseCase _classUnderTest;
         private readonly Fixture _fixture;
         private const string ARN = "some-arn";
+        private const string RAWBODY = "";
 
         public PatchUseCaseTests()
         {
@@ -47,39 +50,67 @@ namespace EqualityInformationApi.Tests.V1.UseCase
             var mockQuery = _fixture.Create<PatchEqualityInformationObject>();
             var mockToken = _fixture.Create<Token>();
 
-            _mockGateway.Setup(x => x.Update(mockQuery, It.IsAny<int?>()))
-                        .ReturnsAsync((EqualityInformation) null);
+            _mockGateway.Setup(x => x.Update(mockQuery, RAWBODY, It.IsAny<int?>()))
+                        .ReturnsAsync((UpdateEntityResult<EqualityInformationDb>) null);
 
-            var response = await _classUnderTest.Execute(mockQuery, mockToken, null)
+            var response = await _classUnderTest.Execute(mockQuery, RAWBODY, mockToken, null)
                                                 .ConfigureAwait(false);
 
             response.Should().BeNull();
         }
 
-        [Fact]
-        public async Task WhenCalledReturnsResponse()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task WhenCalledReturnsResponse(bool hasChanges)
         {
             // Arrange
             var request = _fixture.Create<PatchEqualityInformationObject>();
             var token = new Token();
 
-            var gatewayResponse = _fixture.Create<EqualityInformation>();
+            var updateResponse = hasChanges? MockUpdateEntityResultWhereChangesAreMade()
+                : MockUpdateEntityResultWhereNoChangesAreMade();
             var snsMessage = _fixture.Create<EntityEventSns>();
 
-            _mockGateway.Setup(x => x.Update(request, It.IsAny<int?>()))
-                        .ReturnsAsync(gatewayResponse);
-            _mockSnsFactory.Setup(x => x.Update(gatewayResponse, token))
+            _mockGateway.Setup(x => x.Update(request, RAWBODY, It.IsAny<int?>()))
+                        .ReturnsAsync(updateResponse);
+            _mockSnsFactory.Setup(x => x.Update(updateResponse, token))
                            .Returns(snsMessage);
 
             // Act
-            var response = await _classUnderTest.Execute(request, token, null)
+            var response = await _classUnderTest.Execute(request, RAWBODY, token, null)
                                                 .ConfigureAwait(false);
 
             // Assert
-            response.Should().BeEquivalentTo(gatewayResponse.ToResponse());
+            response.Should().BeEquivalentTo(updateResponse.UpdatedEntity.ToDomain().ToResponse());
 
-            _mockSnsFactory.Verify(x => x.Update(gatewayResponse, token), Times.Once);
-            _mockSnsGateway.Verify(x => x.Publish(snsMessage, ARN, It.IsAny<string>()), Times.Once);
+            _mockSnsFactory.Verify(x => x.Update(updateResponse, token), hasChanges? Times.Once() : Times.Never());
+            _mockSnsGateway.Verify(x => x.Publish(snsMessage, ARN, It.IsAny<string>()), hasChanges ? Times.Once() : Times.Never());
+        }
+
+        private UpdateEntityResult<EqualityInformationDb> MockUpdateEntityResultWhereChangesAreMade()
+        {
+            return new UpdateEntityResult<EqualityInformationDb>
+            {
+                UpdatedEntity = _fixture.Create<EqualityInformationDb>(),
+                OldValues = new Dictionary<string, object>
+                {
+                    { "disabled", null }
+                },
+                NewValues = new Dictionary<string, object>
+                {
+                    { "disabled", "Wheelchair" }
+                }
+            };
+        }
+
+        private UpdateEntityResult<EqualityInformationDb> MockUpdateEntityResultWhereNoChangesAreMade()
+        {
+            return new UpdateEntityResult<EqualityInformationDb>
+            {
+                UpdatedEntity = _fixture.Create<EqualityInformationDb>()
+                // empty
+            };
         }
     }
 }

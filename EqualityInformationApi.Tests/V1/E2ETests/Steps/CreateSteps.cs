@@ -99,8 +99,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             Action<EntityEventSns> verifyFunc = (actual) =>
             {
                 actual.CorrelationId.Should().NotBeEmpty();
-                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 2000);
-                actual.EntityId.Should().Be(databaseResponse.Id);
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 5000);
+                actual.EntityId.Should().Be(databaseResponse.TargetId);
 
                 var expected = databaseResponse.ToDomain();
                 var actualNewData = JsonSerializer.Deserialize<EqualityInformation>(actual.EventData.NewData.ToString(), CreateJsonOptions());

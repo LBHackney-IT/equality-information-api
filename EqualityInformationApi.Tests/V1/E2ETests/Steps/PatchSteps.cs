@@ -1,13 +1,18 @@
 using Amazon.DynamoDBv2.DataModel;
+using EqualityInformationApi.Tests.V1.E2ETests.Fixtures;
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Response;
+using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Infrastructure;
+using EqualityInformationApi.V1.Infrastructure.Constants;
 using FluentAssertions;
+using Hackney.Core.Sns;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -28,6 +33,15 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             error.Should().NotBeNull();
             if (!string.IsNullOrEmpty(errorCode))
                 error.Value.ToString().Should().Contain(errorCode);
+        }
+
+        private void VerifyEventData(object eventDataJsonObj, Dictionary<string, object> expected)
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(eventDataJsonObj.ToString(), CreateJsonOptions());
+            data["nationalInsuranceNumber"].ToString().Should().Be(expected["nationalInsuranceNumber"].ToString());
+
+            var eventLanguages = System.Text.Json.JsonSerializer.Deserialize<List<LanguageInfo>>(data["languages"].ToString(), CreateJsonOptions());
+            eventLanguages.Should().BeEquivalentTo(expected["languages"] as List<LanguageInfo>);
         }
 
         public async Task WhenTheApiIsCalledToPatch(PatchEqualityInformationObject request, Guid id)
@@ -63,6 +77,45 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
 
             message.Dispose();
+        }
+
+        public async Task ThenTheUpdatedSnsEventIsRaised(EqualityInformationFixture fixture, SnsEventVerifier<EntityEventSns> snsVerifier)
+        {
+            var responseContent = DecodeResponse<EqualityInformationDb>(_lastResponse);
+
+            var databaseResponse = await fixture.DbFixture.DynamoDbContext
+                                                .LoadAsync<EqualityInformationDb>(responseContent.TargetId, responseContent.Id)
+                                                .ConfigureAwait(false);
+
+            Action<EntityEventSns> verifyFunc = (actual) =>
+            {
+                actual.CorrelationId.Should().NotBeEmpty();
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 5000);
+                actual.EntityId.Should().Be(databaseResponse.TargetId);
+
+                var expectedOldData = new Dictionary<string, object>
+                {
+                    { "nationalInsuranceNumber", fixture.Entity.NationalInsuranceNumber },
+                    { "languages", fixture.Entity.Languages }
+                };
+                var expectedNewData = new Dictionary<string, object>
+                {
+                    { "nationalInsuranceNumber", databaseResponse.NationalInsuranceNumber },
+                    { "languages", databaseResponse.Languages }
+                };
+                VerifyEventData(actual.EventData.OldData, expectedOldData);
+                VerifyEventData(actual.EventData.NewData, expectedNewData);
+
+                actual.EventType.Should().Be(UpdateEventConstants.EVENTTYPE);
+                actual.Id.Should().NotBeEmpty();
+                actual.SourceDomain.Should().Be(UpdateEventConstants.SOURCEDOMAIN);
+                actual.SourceSystem.Should().Be(UpdateEventConstants.SOURCESYSTEM);
+                actual.User.Email.Should().Be("e2e-testing@development.com");
+                actual.User.Name.Should().Be("Tester");
+                actual.Version.Should().Be(UpdateEventConstants.V1VERSION);
+            };
+
+            snsVerifier.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifier.LastException?.Message);
         }
 
         public void ThenBadRequestIsReturned()

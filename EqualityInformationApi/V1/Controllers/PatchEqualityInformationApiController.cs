@@ -63,13 +63,19 @@ namespace EqualityInformationApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchEqualityInformationObject request)
         {
+            // get raw body text (Only the parameters that need to be changed will be sent.
+            // Deserializing the request object makes it imposible to figure out if the requester
+            // wants to set a parameter to null, or to not update that value.
+            // The bodyText is the raw request object that will be used to determine this information).
+            var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
+
             var ifMatch = GetIfMatchFromHeader();
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
             request.Id = id;
 
             try
             {
-                var response = await _patchUseCase.Execute(request, token, ifMatch).ConfigureAwait(false);
+                var response = await _patchUseCase.Execute(request, bodyText, token, ifMatch).ConfigureAwait(false);
                 if (response is null) return NotFound(id);
 
                 return Ok(response);

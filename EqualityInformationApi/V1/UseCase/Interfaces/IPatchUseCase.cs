@@ -7,6 +7,6 @@ namespace EqualityInformationApi.V1.UseCase.Interfaces
 {
     public interface IPatchUseCase
     {
-        Task<EqualityInformationResponseObject> Execute(PatchEqualityInformationObject request, Token token, int? ifMatch);
+        Task<EqualityInformationResponseObject> Execute(PatchEqualityInformationObject request, string requestBody, Token token, int? ifMatch);
     }
 }

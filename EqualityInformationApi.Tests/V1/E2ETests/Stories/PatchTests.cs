@@ -57,14 +57,18 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServicePatchesEntityCorrectly()
         {
-            var request = _fixture.Build<PatchEqualityInformationObject>()
-                .With(x => x.NationalInsuranceNumber, (string) null)
-                .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
-                .Create();
+            var request = new PatchEqualityInformationObject()
+            {
+                Id = Guid.NewGuid(),
+                TargetId = Guid.NewGuid(),
+                NationalInsuranceNumber = "NZ123456D",
+                Languages = new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } }
+            };
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, _testFixture.Entity.Id))
+            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
+                .When(w => _steps.WhenTheApiIsCalledToPatch(request, request.Id))
                 .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
+                .And(t => _steps.ThenTheUpdatedSnsEventIsRaised(_testFixture, _snsVerifier))
                 .BDDfy();
         }
 
@@ -78,8 +82,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                 .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
                 .Create();
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId))
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, _testFixture.Entity.Id, versionNumber))
+            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
+                .When(w => _steps.WhenTheApiIsCalledToPatch(request, request.Id, versionNumber))
                 .Then(t => _steps.ThenConflictIsReturned(versionNumber))
                 .BDDfy();
         }

@@ -77,7 +77,7 @@ namespace EqualityInformationApi.Tests.V1.Controllers
         public async Task PatchTargetIdNotFoundIdReturnsNotFound()
         {
             var request = _fixture.Create<PatchEqualityInformationObject>();
-            _mockPatchUseCase.Setup(x => x.Execute(request, It.IsAny<Token>(), It.IsAny<int?>())).ReturnsAsync((EqualityInformationResponseObject) null);
+            _mockPatchUseCase.Setup(x => x.Execute(request, It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>())).ReturnsAsync((EqualityInformationResponseObject) null);
 
             var response = await _classUnderTest.Patch(request.TargetId, request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(NotFoundObjectResult));
@@ -97,7 +97,7 @@ namespace EqualityInformationApi.Tests.V1.Controllers
             _requestHeaders.Add(HeaderConstants.IfMatch, $"\"{new StringValues(expected?.ToString())}\"");
             var exception = new VersionNumberConflictException(expected, actual);
 
-            _mockPatchUseCase.Setup(x => x.Execute(request, It.IsAny<Token>(), It.IsAny<int?>())).ThrowsAsync(exception);
+            _mockPatchUseCase.Setup(x => x.Execute(request, It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>())).ThrowsAsync(exception);
 
             // Act
             var response = await _classUnderTest.Patch(request.TargetId, request).ConfigureAwait(false);
@@ -113,7 +113,7 @@ namespace EqualityInformationApi.Tests.V1.Controllers
             var request = _fixture.Create<PatchEqualityInformationObject>();
 
             var equalityInfo = _fixture.Create<EqualityInformationResponseObject>();
-            _mockPatchUseCase.Setup(x => x.Execute(request, It.IsAny<Token>(), It.IsAny<int?>()))
+            _mockPatchUseCase.Setup(x => x.Execute(request, It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
                              .ReturnsAsync(equalityInfo);
 
             var response = await _classUnderTest.Patch(request.TargetId, request).ConfigureAwait(false);

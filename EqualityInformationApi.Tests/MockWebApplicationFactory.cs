@@ -50,7 +50,7 @@ namespace EqualityInformationApi.Tests
         private bool _disposed = false;
         protected override void Dispose(bool disposing)
         {
-            if (disposing && _disposed)
+            if (disposing && !_disposed)
             {
                 if (DynamoDbFixture != null)
                     DynamoDbFixture.Dispose();

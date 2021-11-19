@@ -15,13 +15,16 @@ namespace EqualityInformationApi.V1.Gateways
     public class EqualityInformationGateway : IEqualityInformationGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
+        private readonly IEntityUpdater _updater;
         private readonly ILogger<EqualityInformationGateway> _logger;
 
         public EqualityInformationGateway(
             IDynamoDBContext dynamoDbContext,
+            IEntityUpdater updater,
             ILogger<EqualityInformationGateway> logger)
         {
             _dynamoDbContext = dynamoDbContext;
+            _updater = updater;
             _logger = logger;
         }
 
@@ -38,7 +41,7 @@ namespace EqualityInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<EqualityInformation> Update(PatchEqualityInformationObject request, int? ifMatch)
+        public async Task<UpdateEntityResult<EqualityInformationDb>> Update(PatchEqualityInformationObject request, string bodyText, int? ifMatch)
         {
             var existingRecord = await _dynamoDbContext.LoadAsync<EqualityInformationDb>(request.TargetId, request.Id)
                                                        .ConfigureAwait(false);
@@ -47,13 +50,14 @@ namespace EqualityInformationApi.V1.Gateways
             if (ifMatch != existingRecord.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, existingRecord.VersionNumber);
 
-            var entity = request.ToDomain().ToDatabase();
-            entity.VersionNumber = existingRecord.VersionNumber;
+            var response = _updater.UpdateEntity(existingRecord, bodyText, request);
+            if (response.NewValues.Any())
+            {
+                _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for {request.TargetId}.{request.Id}");
+                await _dynamoDbContext.SaveAsync(response.UpdatedEntity).ConfigureAwait(false);
+            }
 
-            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for {entity.TargetId}.{entity.Id}");
-            await _dynamoDbContext.SaveAsync(entity).ConfigureAwait(false);
-
-            return entity.ToDomain();
+            return response;
         }
 
         [LogCall]

@@ -7,6 +7,7 @@ using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.Infrastructure.Exceptions;
 using FluentAssertions;
+using Force.DeepCloner;
 using Hackney.Core.Testing.DynamoDb;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -26,13 +27,15 @@ namespace EqualityInformationApi.Tests.V1.Gateways
         private readonly List<Action> _cleanup = new List<Action>();
         private readonly Mock<ILogger<EqualityInformationGateway>> _logger;
         private readonly IDynamoDbFixture _dbFixture;
+        private readonly Mock<IEntityUpdater> _mockUpdater;
 
         public DynamoDbGatewayTests(MockWebApplicationFactory<Startup> startupFixture)
         {
             _logger = new Mock<ILogger<EqualityInformationGateway>>();
             _dbFixture = startupFixture.DynamoDbFixture;
+            _mockUpdater = new Mock<IEntityUpdater>();
 
-            _classUnderTest = new EqualityInformationGateway(_dbFixture.DynamoDbContext, _logger.Object);
+            _classUnderTest = new EqualityInformationGateway(_dbFixture.DynamoDbContext, _mockUpdater.Object, _logger.Object);
         }
 
         public void Dispose()
@@ -79,7 +82,7 @@ namespace EqualityInformationApi.Tests.V1.Gateways
             var mockDbContext = new Mock<IDynamoDBContext>();
             mockDbContext.Setup(x => x.SaveAsync(It.IsAny<EqualityInformationDb>(), default)).ThrowsAsync(exception);
 
-            var classUnderTest = new EqualityInformationGateway(mockDbContext.Object, _logger.Object);
+            var classUnderTest = new EqualityInformationGateway(mockDbContext.Object, _mockUpdater.Object, _logger.Object);
 
             // Act
             Func<Task<EqualityInformation>> func = async () => await classUnderTest.Create(request).ConfigureAwait(false);
@@ -114,7 +117,7 @@ namespace EqualityInformationApi.Tests.V1.Gateways
             mockDbContext.Setup(x => x.QueryAsync<EqualityInformationDb>(It.IsAny<object>(), It.IsAny<DynamoDBOperationConfig>()))
                          .Throws(exception);
 
-            var classUnderTest = new EqualityInformationGateway(mockDbContext.Object, _logger.Object);
+            var classUnderTest = new EqualityInformationGateway(mockDbContext.Object, _mockUpdater.Object, _logger.Object);
 
             // Act
             Func<Task<EqualityInformation>> func = async () => await classUnderTest.Get(id).ConfigureAwait(false);
@@ -182,7 +185,7 @@ namespace EqualityInformationApi.Tests.V1.Gateways
             var request = _fixture.Create<PatchEqualityInformationObject>();
 
             // Act
-            var result = await _classUnderTest.Update(request, null).ConfigureAwait(false);
+            var result = await _classUnderTest.Update(request, null, null).ConfigureAwait(false);
 
             // Assert
             result.Should().BeNull();
@@ -207,7 +210,7 @@ namespace EqualityInformationApi.Tests.V1.Gateways
             // Act
             Func<Task> act = async () =>
             {
-                await _classUnderTest.Update(request, ifMatch).ConfigureAwait(false);
+                await _classUnderTest.Update(request, null, ifMatch).ConfigureAwait(false);
             };
 
             // Assert
@@ -224,21 +227,100 @@ namespace EqualityInformationApi.Tests.V1.Gateways
                                    .Create();
             await _dbFixture.SaveEntityAsync(dbEntity).ConfigureAwait(false);
 
-            var request = _fixture.Build<PatchEqualityInformationObject>()
-                                  .With(x => x.Id, dbEntity.Id)
-                                  .With(x => x.TargetId, dbEntity.TargetId)
-                                  .Create();
+            var request = new PatchEqualityInformationObject()
+            {
+                Id = dbEntity.Id,
+                TargetId = dbEntity.TargetId
+            };
+            request.Disabled = "might be";
+            request.Ethnicity = new Ethnicity() { EthnicGroupValue = "some-ethnic-group" };
+            request.ReligionOrBelief = new ReligionOrBelief() { ReligionOrBeliefValue = "its all rubbish" };
+
+            // setup updater
+            var updaterResponse = CreateUpdateEntityResultWithChanges(dbEntity, request);
+            _mockUpdater
+                .Setup(x => x.UpdateEntity(It.IsAny<EqualityInformationDb>(), It.IsAny<string>(), It.IsAny<PatchEqualityInformationObject>()))
+                .Returns(updaterResponse);
+
+            var mockRawBody = "";
 
             // Act
-            var result = await _classUnderTest.Update(request, 0).ConfigureAwait(false);
-            
+            var result = await _classUnderTest.Update(request, mockRawBody, 0).ConfigureAwait(false);
+
             // Assert
-            result.Should().BeEquivalentTo(request.ToDomain(), c => c.Excluding(y => y.VersionNumber));
+            result.Should().BeOfType(typeof(UpdateEntityResult<EqualityInformationDb>));
 
             var updatedInDb = await _dbFixture.DynamoDbContext.LoadAsync<EqualityInformationDb>(dbEntity.TargetId, dbEntity.Id)
                                                                 .ConfigureAwait(false);
-            updatedInDb.Should().BeEquivalentTo(request.ToDomain().ToDatabase(), c => c.Excluding(y => y.VersionNumber));
+            updatedInDb.Should().BeEquivalentTo(dbEntity, c => c.Excluding(y => y.VersionNumber)
+                                                                .Excluding(y => y.Disabled)
+                                                                .Excluding(y => y.Ethnicity)
+                                                                .Excluding(y => y.ReligionOrBelief));
             updatedInDb.VersionNumber.Should().Be(1);
+            updatedInDb.Disabled.Should().Be(request.Disabled);
+            updatedInDb.Ethnicity.Should().BeEquivalentTo(request.Ethnicity);
+            updatedInDb.ReligionOrBelief.Should().BeEquivalentTo(request.ReligionOrBelief);
+        }
+
+        [Fact]
+        public async Task UpdateWhenCalledWithNoChangesDoesNotUpdateDatabase()
+        {
+            // Arrange
+            var dbEntity = _fixture.Build<EqualityInformationDb>()
+                                   .With(x => x.VersionNumber, (int?) null)
+                                   .Create();
+            await _dbFixture.SaveEntityAsync(dbEntity).ConfigureAwait(false);
+
+            var request = new PatchEqualityInformationObject()
+            {
+                Id = dbEntity.Id,
+                TargetId = dbEntity.TargetId
+            };
+
+            // setup updater
+            var updaterResponse = new UpdateEntityResult<EqualityInformationDb>(); // no changes
+            _mockUpdater
+                .Setup(x => x.UpdateEntity(It.IsAny<EqualityInformationDb>(), It.IsAny<string>(), It.IsAny<PatchEqualityInformationObject>()))
+                .Returns(updaterResponse);
+
+            var mockRawBody = "";
+
+            // Act
+            var result = await _classUnderTest.Update(request, mockRawBody, 0).ConfigureAwait(false);
+
+            // Assert
+            result.Should().BeOfType(typeof(UpdateEntityResult<EqualityInformationDb>));
+
+            var loadedInDb = await _dbFixture.DynamoDbContext.LoadAsync<EqualityInformationDb>(dbEntity.TargetId, dbEntity.Id)
+                                                                .ConfigureAwait(false);
+            loadedInDb.Should().BeEquivalentTo(dbEntity, c => c.Excluding(y => y.VersionNumber));
+            loadedInDb.VersionNumber.Should().Be(0);
+        }
+
+        private UpdateEntityResult<EqualityInformationDb> CreateUpdateEntityResultWithChanges(EqualityInformationDb entityInsertedIntoDatabase,
+            PatchEqualityInformationObject request)
+        {
+            var updatedEntity = entityInsertedIntoDatabase.DeepClone();
+            updatedEntity.Disabled = request.Disabled;
+            updatedEntity.Ethnicity = request.Ethnicity;
+            updatedEntity.ReligionOrBelief = request.ReligionOrBelief;
+
+            return new UpdateEntityResult<EqualityInformationDb>
+            {
+                UpdatedEntity = updatedEntity,
+                OldValues = new Dictionary<string, object>
+                {
+                     { "Disabled", entityInsertedIntoDatabase.Disabled },
+                     { "Ethnicity", entityInsertedIntoDatabase.Ethnicity },
+                     { "ReligionOrBelief", entityInsertedIntoDatabase.ReligionOrBelief }
+                },
+                NewValues = new Dictionary<string, object>
+                {
+                     { "Disabled", updatedEntity.Disabled },
+                     { "Ethnicity", updatedEntity.Ethnicity },
+                     { "ReligionOrBelief", updatedEntity.ReligionOrBelief }
+                }
+            };
         }
     }
 }
