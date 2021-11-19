@@ -52,7 +52,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Fixtures
                 {
                     new LanguageInfo() { IsPrimary = true, Language = "English" }
                 })
-                .With(x => x.VersionNumber, (int?)null)
+                .With(x => x.VersionNumber, (int?) null)
                 .Create();
 
             DbFixture.SaveEntityAsync(Entity).GetAwaiter().GetResult();

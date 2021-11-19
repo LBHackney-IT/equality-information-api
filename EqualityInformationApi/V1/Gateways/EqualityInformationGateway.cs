@@ -73,8 +73,8 @@ namespace EqualityInformationApi.V1.Gateways
                 return null;
 
             if (results.Count > 1)
-                    throw new ApplicationException($"{results.Count} EqualityInformationDb records found for target id {targetId}. "
-                                                  + "There should only be 0 or 1.");
+                throw new ApplicationException($"{results.Count} EqualityInformationDb records found for target id {targetId}. "
+                                              + "There should only be 0 or 1.");
 
             return results.First().ToDomain();
         }

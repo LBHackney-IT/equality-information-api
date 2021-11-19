@@ -68,7 +68,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
             var request = _fixture.Create<PatchEqualityInformationObject>();
             var token = new Token();
 
-            var updateResponse = hasChanges? MockUpdateEntityResultWhereChangesAreMade()
+            var updateResponse = hasChanges ? MockUpdateEntityResultWhereChangesAreMade()
                 : MockUpdateEntityResultWhereNoChangesAreMade();
             var snsMessage = _fixture.Create<EntityEventSns>();
 
@@ -84,7 +84,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
             // Assert
             response.Should().BeEquivalentTo(updateResponse.UpdatedEntity.ToDomain().ToResponse());
 
-            _mockSnsFactory.Verify(x => x.Update(updateResponse, token), hasChanges? Times.Once() : Times.Never());
+            _mockSnsFactory.Verify(x => x.Update(updateResponse, token), hasChanges ? Times.Once() : Times.Never());
             _mockSnsGateway.Verify(x => x.Publish(snsMessage, ARN, It.IsAny<string>()), hasChanges ? Times.Once() : Times.Never());
         }
 

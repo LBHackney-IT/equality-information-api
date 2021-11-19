@@ -43,7 +43,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         [Fact]
         public async Task IdNotFoundReturnsNull()
         {
-            _mockGateway.Setup(x => x.Get(_id)).ReturnsAsync((EqualityInformation)null);
+            _mockGateway.Setup(x => x.Get(_id)).ReturnsAsync((EqualityInformation) null);
 
             // Act
             var response = await _classUnderTest.Execute(_id).ConfigureAwait(false);
