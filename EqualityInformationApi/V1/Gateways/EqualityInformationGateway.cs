@@ -41,19 +41,20 @@ namespace EqualityInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<UpdateEntityResult<EqualityInformationDb>> Update(PatchEqualityInformationObject request, string bodyText, int? ifMatch)
+        public async Task<UpdateEntityResult<EqualityInformationDb>> Update(PatchEqualityInformationRequest request,
+            EqualityInformationObject requestObject, string bodyText, int? ifMatch)
         {
-            var existingRecord = await _dynamoDbContext.LoadAsync<EqualityInformationDb>(request.TargetId, request.Id)
+            var existingRecord = await _dynamoDbContext.LoadAsync<EqualityInformationDb>(requestObject.TargetId, request.Id)
                                                        .ConfigureAwait(false);
             if (existingRecord == null) return null;
 
             if (ifMatch != existingRecord.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, existingRecord.VersionNumber);
 
-            var response = _updater.UpdateEntity(existingRecord, bodyText, request);
+            var response = _updater.UpdateEntity(existingRecord, bodyText, requestObject);
             if (response.NewValues.Any())
             {
-                _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for {request.TargetId}.{request.Id}");
+                _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for targetId: {requestObject.TargetId}; id: {request.Id}");
                 await _dynamoDbContext.SaveAsync(response.UpdatedEntity).ConfigureAwait(false);
             }
 

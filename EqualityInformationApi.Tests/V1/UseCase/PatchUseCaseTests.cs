@@ -1,6 +1,5 @@
 using AutoFixture;
 using EqualityInformationApi.V1.Boundary.Request;
-using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
@@ -47,13 +46,14 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         [Fact]
         public async Task WhenEqualityInfoDoesntExistReturnsNull()
         {
-            var mockQuery = _fixture.Create<PatchEqualityInformationObject>();
+            var mockRequest = _fixture.Create<PatchEqualityInformationRequest>();
+            var mockRequestObject = _fixture.Create<EqualityInformationObject>();
             var mockToken = _fixture.Create<Token>();
 
-            _mockGateway.Setup(x => x.Update(mockQuery, RAWBODY, It.IsAny<int?>()))
+            _mockGateway.Setup(x => x.Update(mockRequest, mockRequestObject, RAWBODY, It.IsAny<int?>()))
                         .ReturnsAsync((UpdateEntityResult<EqualityInformationDb>) null);
 
-            var response = await _classUnderTest.Execute(mockQuery, RAWBODY, mockToken, null)
+            var response = await _classUnderTest.Execute(mockRequest, mockRequestObject, RAWBODY, mockToken, null)
                                                 .ConfigureAwait(false);
 
             response.Should().BeNull();
@@ -65,20 +65,21 @@ namespace EqualityInformationApi.Tests.V1.UseCase
         public async Task WhenCalledReturnsResponse(bool hasChanges)
         {
             // Arrange
-            var request = _fixture.Create<PatchEqualityInformationObject>();
+            var mockRequest = _fixture.Create<PatchEqualityInformationRequest>();
+            var mockRequestObject = _fixture.Create<EqualityInformationObject>();
             var token = new Token();
 
             var updateResponse = hasChanges ? MockUpdateEntityResultWhereChangesAreMade()
                 : MockUpdateEntityResultWhereNoChangesAreMade();
             var snsMessage = _fixture.Create<EntityEventSns>();
 
-            _mockGateway.Setup(x => x.Update(request, RAWBODY, It.IsAny<int?>()))
+            _mockGateway.Setup(x => x.Update(mockRequest, mockRequestObject, RAWBODY, It.IsAny<int?>()))
                         .ReturnsAsync(updateResponse);
             _mockSnsFactory.Setup(x => x.Update(updateResponse, token))
                            .Returns(snsMessage);
 
             // Act
-            var response = await _classUnderTest.Execute(request, RAWBODY, token, null)
+            var response = await _classUnderTest.Execute(mockRequest, mockRequestObject, RAWBODY, token, null)
                                                 .ConfigureAwait(false);
 
             // Assert

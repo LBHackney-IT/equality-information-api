@@ -2,7 +2,7 @@ using System;
 
 namespace EqualityInformationApi.V1.Boundary.Request
 {
-    public class PatchEqualityInformationObject : EqualityInformationObject
+    public class PatchEqualityInformationRequest
     {
         public Guid Id { get; set; }
     }

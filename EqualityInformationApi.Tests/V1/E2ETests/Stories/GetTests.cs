@@ -1,11 +1,7 @@
-using AutoFixture;
 using EqualityInformationApi.Tests.V1.E2ETests.Fixtures;
 using EqualityInformationApi.Tests.V1.E2ETests.Steps;
-using EqualityInformationApi.V1.Boundary.Request;
-using EqualityInformationApi.V1.Domain;
 using Hackney.Core.Testing.DynamoDb;
 using System;
-using System.Collections.Generic;
 using TestStack.BDDfy;
 using Xunit;
 
@@ -21,7 +17,6 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         private readonly IDynamoDbFixture _dbFixture;
         private readonly EqualityInformationFixture _testFixture;
         private readonly GetSteps _steps;
-        private readonly Fixture _fixture = new Fixture();
 
         public GetTests(MockWebApplicationFactory<Startup> startupFixture)
         {
@@ -53,13 +48,10 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServiceGetsEntityCorrectly()
         {
-            var request = _fixture.Build<PatchEqualityInformationObject>()
-                .With(x => x.NationalInsuranceNumber, (string) null)
-                .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
-                .Create();
+            var targetId = Guid.NewGuid();
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
-                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
+            this.Given(x => _testFixture.GivenAnEntityExists(targetId, Guid.NewGuid()))
+                .When(w => _steps.WhenTheApiIsCalledToGet(targetId))
                 .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
                 .BDDfy();
         }
@@ -67,14 +59,11 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServiceReturnsBadRequestWhenTooManyRecords()
         {
-            var request = _fixture.Build<PatchEqualityInformationObject>()
-                .With(x => x.NationalInsuranceNumber, (string) null)
-                .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
-                .Create();
+            var targetId = Guid.NewGuid();
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
-                .And(x => _testFixture.GivenAnEntityExists(request.TargetId, Guid.NewGuid()))
-                .When(w => _steps.WhenTheApiIsCalledToGet(request.TargetId))
+            this.Given(x => _testFixture.GivenAnEntityExists(targetId, Guid.NewGuid()))
+                .And(x => _testFixture.GivenAnEntityExists(targetId, Guid.NewGuid()))
+                .When(w => _steps.WhenTheApiIsCalledToGet(targetId))
                 .Then(t => _steps.Then500IsReturned())
                 .BDDfy();
         }
@@ -82,10 +71,10 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServiceReturnsNotFoundWhenTargetIdNotFound()
         {
-            var id = Guid.NewGuid();
+            var targetId = Guid.NewGuid();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToGet(id))
+                .When(w => _steps.WhenTheApiIsCalledToGet(targetId))
                 .Then(t => _steps.ThenNotFoundIsReturned())
                 .BDDfy();
         }

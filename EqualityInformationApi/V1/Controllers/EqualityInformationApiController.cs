@@ -103,7 +103,7 @@ namespace EqualityInformationApi.V1.Controllers
         [HttpPatch]
         [Route("{id}")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchEqualityInformationObject request)
+        public async Task<IActionResult> Patch([FromRoute] PatchEqualityInformationRequest request, [FromBody] EqualityInformationObject requestObject)
         {
             // get raw body text (Only the parameters that need to be changed will be sent.
             // Deserializing the request object makes it imposible to figure out if the requester
@@ -113,12 +113,11 @@ namespace EqualityInformationApi.V1.Controllers
 
             var ifMatch = GetIfMatchFromHeader();
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
-            request.Id = id;
 
             try
             {
-                var response = await _patchUseCase.Execute(request, bodyText, token, ifMatch).ConfigureAwait(false);
-                if (response is null) return NotFound(id);
+                var response = await _patchUseCase.Execute(request, requestObject, bodyText, token, ifMatch).ConfigureAwait(false);
+                if (response is null) return NotFound(request.Id);
 
                 return Ok(response);
             }
