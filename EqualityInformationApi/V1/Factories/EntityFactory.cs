@@ -83,12 +83,5 @@ namespace EqualityInformationApi.V1.Factories
                 ArmedForces = request.ArmedForces
             };
         }
-
-        public static EqualityInformation ToDomain(this PatchEqualityInformationObject request)
-        {
-            var info = EntityFactory.ToDomain(request as EqualityInformationObject);
-            info.Id = request.Id;
-            return info;
-        }
     }
 }

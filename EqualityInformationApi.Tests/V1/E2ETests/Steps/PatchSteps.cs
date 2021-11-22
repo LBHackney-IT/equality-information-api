@@ -44,15 +44,13 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             eventLanguages.Should().BeEquivalentTo(expected["languages"] as List<LanguageInfo>);
         }
 
-        public async Task WhenTheApiIsCalledToPatch(PatchEqualityInformationObject request, Guid id)
+        public async Task WhenTheApiIsCalledToPatch(EqualityInformationObject requestObject, Guid id)
         {
             int? defaultIfMatch = 0;
-            await WhenTheApiIsCalledToPatch(request, id, defaultIfMatch).ConfigureAwait(false);
+            await WhenTheApiIsCalledToPatch(requestObject, id, defaultIfMatch).ConfigureAwait(false);
         }
-        public async Task WhenTheApiIsCalledToPatch(PatchEqualityInformationObject request, Guid id, int? ifMatch)
+        public async Task WhenTheApiIsCalledToPatch(EqualityInformationObject requestObject, Guid id, int? ifMatch)
         {
-            request.Id = id;
-
             var uri = new Uri($"api/v1/equality-information/{id}", UriKind.Relative);
 
             var message = new HttpRequestMessage(HttpMethod.Patch, uri);
@@ -66,7 +64,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Converters = new[] { new StringEnumConverter() }
             };
-            var requestJson = JsonConvert.SerializeObject(request, jsonSettings);
+            var requestJson = JsonConvert.SerializeObject(requestObject, jsonSettings);
             message.Content = new StringContent(requestJson, Encoding.UTF8, "application/json");
             message.Method = HttpMethod.Patch;
 

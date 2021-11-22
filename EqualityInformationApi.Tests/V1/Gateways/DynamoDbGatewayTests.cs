@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -182,10 +181,11 @@ namespace EqualityInformationApi.Tests.V1.Gateways
         public async Task UpdateWhenCalledGatewayReturnsNoResultReturnsNull()
         {
             // Arrange
-            var request = _fixture.Create<PatchEqualityInformationObject>();
+            var requestObject = _fixture.Create<EqualityInformationObject>();
+            var request = _fixture.Create<PatchEqualityInformationRequest>();
 
             // Act
-            var result = await _classUnderTest.Update(request, null, null).ConfigureAwait(false);
+            var result = await _classUnderTest.Update(request, requestObject, null, null).ConfigureAwait(false);
 
             // Assert
             result.Should().BeNull();
@@ -202,15 +202,15 @@ namespace EqualityInformationApi.Tests.V1.Gateways
                                    .Create();
             await _dbFixture.SaveEntityAsync(dbEntity).ConfigureAwait(false);
 
-            var request = _fixture.Build<PatchEqualityInformationObject>()
-                                  .With(x => x.Id, dbEntity.Id)
+            var request = new PatchEqualityInformationRequest() { Id = dbEntity.Id };
+            var requestObject = _fixture.Build<EqualityInformationObject>()
                                   .With(x => x.TargetId, dbEntity.TargetId)
                                   .Create();
 
             // Act
             Func<Task> act = async () =>
             {
-                await _classUnderTest.Update(request, null, ifMatch).ConfigureAwait(false);
+                await _classUnderTest.Update(request, requestObject, null, ifMatch).ConfigureAwait(false);
             };
 
             // Assert
@@ -227,25 +227,25 @@ namespace EqualityInformationApi.Tests.V1.Gateways
                                    .Create();
             await _dbFixture.SaveEntityAsync(dbEntity).ConfigureAwait(false);
 
-            var request = new PatchEqualityInformationObject()
+            var request = new PatchEqualityInformationRequest() { Id = dbEntity.Id };
+            var requestObject = new EqualityInformationObject()
             {
-                Id = dbEntity.Id,
-                TargetId = dbEntity.TargetId
+                TargetId = dbEntity.TargetId,
+                Disabled = "might be",
+                Ethnicity = new Ethnicity() { EthnicGroupValue = "some-ethnic-group" },
+                ReligionOrBelief = new ReligionOrBelief() { ReligionOrBeliefValue = "its all rubbish" }
             };
-            request.Disabled = "might be";
-            request.Ethnicity = new Ethnicity() { EthnicGroupValue = "some-ethnic-group" };
-            request.ReligionOrBelief = new ReligionOrBelief() { ReligionOrBeliefValue = "its all rubbish" };
 
             // setup updater
-            var updaterResponse = CreateUpdateEntityResultWithChanges(dbEntity, request);
+            var updaterResponse = CreateUpdateEntityResultWithChanges(dbEntity, requestObject);
             _mockUpdater
-                .Setup(x => x.UpdateEntity(It.IsAny<EqualityInformationDb>(), It.IsAny<string>(), It.IsAny<PatchEqualityInformationObject>()))
+                .Setup(x => x.UpdateEntity(It.IsAny<EqualityInformationDb>(), It.IsAny<string>(), It.IsAny<EqualityInformationObject>()))
                 .Returns(updaterResponse);
 
             var mockRawBody = "";
 
             // Act
-            var result = await _classUnderTest.Update(request, mockRawBody, 0).ConfigureAwait(false);
+            var result = await _classUnderTest.Update(request, requestObject, mockRawBody, 0).ConfigureAwait(false);
 
             // Assert
             result.Should().BeOfType(typeof(UpdateEntityResult<EqualityInformationDb>));
@@ -257,9 +257,9 @@ namespace EqualityInformationApi.Tests.V1.Gateways
                                                                 .Excluding(y => y.Ethnicity)
                                                                 .Excluding(y => y.ReligionOrBelief));
             updatedInDb.VersionNumber.Should().Be(1);
-            updatedInDb.Disabled.Should().Be(request.Disabled);
-            updatedInDb.Ethnicity.Should().BeEquivalentTo(request.Ethnicity);
-            updatedInDb.ReligionOrBelief.Should().BeEquivalentTo(request.ReligionOrBelief);
+            updatedInDb.Disabled.Should().Be(requestObject.Disabled);
+            updatedInDb.Ethnicity.Should().BeEquivalentTo(requestObject.Ethnicity);
+            updatedInDb.ReligionOrBelief.Should().BeEquivalentTo(requestObject.ReligionOrBelief);
         }
 
         [Fact]
@@ -271,22 +271,19 @@ namespace EqualityInformationApi.Tests.V1.Gateways
                                    .Create();
             await _dbFixture.SaveEntityAsync(dbEntity).ConfigureAwait(false);
 
-            var request = new PatchEqualityInformationObject()
-            {
-                Id = dbEntity.Id,
-                TargetId = dbEntity.TargetId
-            };
+            var request = new PatchEqualityInformationRequest() { Id = dbEntity.Id };
+            var requestObject = new EqualityInformationObject() { TargetId = dbEntity.TargetId };
 
             // setup updater
             var updaterResponse = new UpdateEntityResult<EqualityInformationDb>(); // no changes
             _mockUpdater
-                .Setup(x => x.UpdateEntity(It.IsAny<EqualityInformationDb>(), It.IsAny<string>(), It.IsAny<PatchEqualityInformationObject>()))
+                .Setup(x => x.UpdateEntity(It.IsAny<EqualityInformationDb>(), It.IsAny<string>(), It.IsAny<EqualityInformationObject>()))
                 .Returns(updaterResponse);
 
             var mockRawBody = "";
 
             // Act
-            var result = await _classUnderTest.Update(request, mockRawBody, 0).ConfigureAwait(false);
+            var result = await _classUnderTest.Update(request, requestObject, mockRawBody, 0).ConfigureAwait(false);
 
             // Assert
             result.Should().BeOfType(typeof(UpdateEntityResult<EqualityInformationDb>));
@@ -298,7 +295,7 @@ namespace EqualityInformationApi.Tests.V1.Gateways
         }
 
         private UpdateEntityResult<EqualityInformationDb> CreateUpdateEntityResultWithChanges(EqualityInformationDb entityInsertedIntoDatabase,
-            PatchEqualityInformationObject request)
+            EqualityInformationObject request)
         {
             var updatedEntity = entityInsertedIntoDatabase.DeepClone();
             updatedEntity.Disabled = request.Disabled;

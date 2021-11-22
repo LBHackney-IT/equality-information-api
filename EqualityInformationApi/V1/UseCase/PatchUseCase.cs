@@ -27,9 +27,10 @@ namespace EqualityInformationApi.V1.UseCase
             _snsFactory = snsFactory;
         }
 
-        public async Task<EqualityInformationResponseObject> Execute(PatchEqualityInformationObject request, string requestBody, Token token, int? ifMatch)
+        public async Task<EqualityInformationResponseObject> Execute(PatchEqualityInformationRequest request,
+            EqualityInformationObject requestObject, string requestBody, Token token, int? ifMatch)
         {
-            var result = await _gateway.Update(request, requestBody, ifMatch).ConfigureAwait(false);
+            var result = await _gateway.Update(request, requestObject, requestBody, ifMatch).ConfigureAwait(false);
             if (result is null) return null;
 
             if (result.NewValues.Any())

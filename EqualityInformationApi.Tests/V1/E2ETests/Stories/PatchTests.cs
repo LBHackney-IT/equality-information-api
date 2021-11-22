@@ -57,16 +57,16 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServicePatchesEntityCorrectly()
         {
-            var request = new PatchEqualityInformationObject()
+            var id = Guid.NewGuid();
+            var requestObject = new EqualityInformationObject()
             {
-                Id = Guid.NewGuid(),
                 TargetId = Guid.NewGuid(),
                 NationalInsuranceNumber = "NZ123456D",
                 Languages = new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } }
             };
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, request.Id))
+            this.Given(x => _testFixture.GivenAnEntityExists(requestObject.TargetId, id))
+                .When(w => _steps.WhenTheApiIsCalledToPatch(requestObject, id))
                 .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
                 .And(t => _steps.ThenTheUpdatedSnsEventIsRaised(_testFixture, _snsVerifier))
                 .BDDfy();
@@ -77,13 +77,14 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [InlineData(5)]
         public void PatchServiceReturnsConflictWhenIncorrectVersionNumber(int? versionNumber)
         {
-            var request = _fixture.Build<PatchEqualityInformationObject>()
+            var id = Guid.NewGuid();
+            var requestObject = _fixture.Build<EqualityInformationObject>()
                 .With(x => x.NationalInsuranceNumber, (string) null)
                 .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
                 .Create();
 
-            this.Given(x => _testFixture.GivenAnEntityExists(request.TargetId, request.Id))
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, request.Id, versionNumber))
+            this.Given(x => _testFixture.GivenAnEntityExists(requestObject.TargetId, id))
+                .When(w => _steps.WhenTheApiIsCalledToPatch(requestObject, id, versionNumber))
                 .Then(t => _steps.ThenConflictIsReturned(versionNumber))
                 .BDDfy();
         }
@@ -91,13 +92,14 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void PatchServiceReturnsNotFoundtWhenTargetIdNotFound()
         {
-            var request = _fixture.Build<PatchEqualityInformationObject>()
+            var id = Guid.NewGuid();
+            var requestObject = _fixture.Build<EqualityInformationObject>()
                 .With(x => x.NationalInsuranceNumber, (string) null)
                 .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = true } })
                 .Create();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, Guid.NewGuid()))
+                .When(w => _steps.WhenTheApiIsCalledToPatch(requestObject, id))
                 .Then(t => _steps.ThenNotFoundIsReturned())
                 .BDDfy();
         }
@@ -105,13 +107,14 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void PatchServiceReturnsBadRequestWhenRequestInvalid()
         {
-            var request = _fixture.Build<PatchEqualityInformationObject>()
+            var id = Guid.NewGuid();
+            var requestObject = _fixture.Build<EqualityInformationObject>()
                 .With(x => x.NationalInsuranceNumber, "dgfdsfdsf")
                 .With(x => x.Languages, new List<LanguageInfo> { new LanguageInfo { Language = "Something", IsPrimary = false } })
                 .Create();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, Guid.NewGuid()))
+                .When(w => _steps.WhenTheApiIsCalledToPatch(requestObject, id))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .Then(t => _steps.ThenTheValidationErrorsAreReturned("Languages", ErrorCodes.OnePrimaryLanguage))
                 .Then(t => _steps.ThenTheValidationErrorsAreReturned("NationalInsuranceNumber"))
@@ -121,11 +124,13 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void PatchServiceReturnsBadRequestWhenTargetIdEmpty()
         {
-            var request = _fixture.Create<PatchEqualityInformationObject>();
-            request.TargetId = Guid.Empty;
+            var id = Guid.NewGuid();
+            var requestObject = _fixture.Build<EqualityInformationObject>()
+                .With(x => x.TargetId, Guid.Empty)
+                .Create();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalledToPatch(request, Guid.NewGuid()))
+                .When(w => _steps.WhenTheApiIsCalledToPatch(requestObject, id))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .BDDfy();
         }

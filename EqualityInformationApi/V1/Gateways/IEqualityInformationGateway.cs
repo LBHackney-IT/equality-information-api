@@ -10,7 +10,8 @@ namespace EqualityInformationApi.V1.Gateways
     {
         Task<EqualityInformation> Create(EqualityInformationObject request);
 
-        Task<UpdateEntityResult<EqualityInformationDb>> Update(PatchEqualityInformationObject request, string bodyText, int? ifMatch);
+        Task<UpdateEntityResult<EqualityInformationDb>> Update(PatchEqualityInformationRequest request,
+            EqualityInformationObject requestObject, string bodyText, int? ifMatch);
 
         Task<EqualityInformation> Get(Guid targetId);
     }
