@@ -7,6 +7,7 @@ using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.Infrastructure.Constants;
 using FluentAssertions;
 using Hackney.Core.Sns;
+using Hackney.Core.Testing.Sns;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -77,7 +78,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             message.Dispose();
         }
 
-        public async Task ThenTheUpdatedSnsEventIsRaised(EqualityInformationFixture fixture, SnsEventVerifier<EntityEventSns> snsVerifier)
+        public async Task ThenTheUpdatedSnsEventIsRaised(EqualityInformationFixture fixture, ISnsFixture snsFixture)
         {
             var responseContent = DecodeResponse<EqualityInformationDb>(_lastResponse);
 
@@ -113,7 +114,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
                 actual.Version.Should().Be(UpdateEventConstants.V1VERSION);
             };
 
-            snsVerifier.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifier.LastException?.Message);
+            var snsVerifer = snsFixture.GetSnsEventVerifier<EntityEventSns>();
+            (await snsVerifer.VerifySnsEventRaised<EntityEventSns>(verifyFunc)).Should().BeTrue(snsVerifer.LastException?.Message);
         }
 
         public void ThenBadRequestIsReturned()
