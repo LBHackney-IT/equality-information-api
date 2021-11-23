@@ -4,8 +4,8 @@ using EqualityInformationApi.Tests.V1.E2ETests.Steps;
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Request.Validation;
 using EqualityInformationApi.V1.Domain;
-using Hackney.Core.Sns;
 using Hackney.Core.Testing.DynamoDb;
+using Hackney.Core.Testing.Sns;
 using System;
 using System.Collections.Generic;
 using TestStack.BDDfy;
@@ -21,7 +21,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
     public class PatchTests : IDisposable
     {
         private readonly IDynamoDbFixture _dbFixture;
-        private readonly SnsEventVerifier<EntityEventSns> _snsVerifier;
+        private readonly ISnsFixture _snsFixture;
         private readonly EqualityInformationFixture _testFixture;
         private readonly PatchSteps _steps;
         private readonly Fixture _fixture = new Fixture();
@@ -29,8 +29,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         public PatchTests(MockWebApplicationFactory<Startup> startupFixture)
         {
             _dbFixture = startupFixture.DynamoDbFixture;
-            _snsVerifier = startupFixture.SnsVerifer;
-            _testFixture = new EqualityInformationFixture(_dbFixture, startupFixture.SimpleNotificationService);
+            _snsFixture = startupFixture.SnsFixture;
+            _testFixture = new EqualityInformationFixture(_dbFixture, _snsFixture.SimpleNotificationService);
             _steps = new PatchSteps(startupFixture.Client);
         }
 
@@ -68,7 +68,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             this.Given(x => _testFixture.GivenAnEntityExists(requestObject.TargetId, id))
                 .When(w => _steps.WhenTheApiIsCalledToPatch(requestObject, id))
                 .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
-                .And(t => _steps.ThenTheUpdatedSnsEventIsRaised(_testFixture, _snsVerifier))
+                .And(t => _steps.ThenTheUpdatedSnsEventIsRaised(_testFixture, _snsFixture))
                 .BDDfy();
         }
 
