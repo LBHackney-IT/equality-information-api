@@ -1,3 +1,4 @@
+using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Domain;
