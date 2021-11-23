@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using EqualityInformationApi.V1.Controllers;
-using EqualityInformationApi.V1.Infrastructure;
 using FluentAssertions;
 using Hackney.Core.Middleware;
 using Microsoft.AspNetCore.Http;

@@ -1,10 +1,7 @@
 using AutoFixture;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
-using EqualityInformationApi.V1.Infrastructure;
 using FluentAssertions;
-using System;
-using System.Linq;
 using Xunit;
 
 namespace EqualityInformationApi.Tests.V1.Factories
