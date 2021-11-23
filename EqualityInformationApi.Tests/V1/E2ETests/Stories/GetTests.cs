@@ -21,7 +21,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         public GetTests(MockWebApplicationFactory<Startup> startupFixture)
         {
             _dbFixture = startupFixture.DynamoDbFixture;
-            _testFixture = new EqualityInformationFixture(_dbFixture, startupFixture.SimpleNotificationService);
+            _testFixture = new EqualityInformationFixture(_dbFixture, startupFixture.SnsFixture.SimpleNotificationService);
             _steps = new GetSteps(startupFixture.Client);
         }
 
