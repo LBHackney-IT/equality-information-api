@@ -3,7 +3,6 @@ using EqualityInformationApi.V1.Domain;
 using Hackney.Core.DynamoDb.Converters;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EqualityInformationApi.V1.Infrastructure
 {
@@ -16,13 +15,13 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBRangeKey]
         public Guid Id { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<string>))]
         public string AgeGroup { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Gender>))]
         public Gender Gender { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<string>))]
         public string Nationality { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Ethnicity>))]
@@ -40,7 +39,7 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<PregnancyOrMaternity>))]
         public List<PregnancyOrMaternity> PregnancyOrMaternity { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<string>))]
         public string NationalInsuranceNumber { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<LanguageInfo>))]
@@ -49,10 +48,10 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CaringResponsibilities>))]
         public CaringResponsibilities CaringResponsibilities { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<string>))]
         public string Disabled { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<List<string>>))]
         public List<string> CommunicationRequirements { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<EconomicSituation>))]
@@ -61,7 +60,10 @@ namespace EqualityInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<HomeSituation>))]
         public HomeSituation HomeSituation { get; set; }
 
-        [DynamoDBProperty]
+        [DynamoDBProperty(Converter = typeof(DynamoDbNullConverter<string>))]
         public string ArmedForces { get; set; }
+
+        [DynamoDBVersion]
+        public int? VersionNumber { get; set; }
     }
 }

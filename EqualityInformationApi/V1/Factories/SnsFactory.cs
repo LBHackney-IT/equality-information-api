@@ -1,11 +1,9 @@
 using EqualityInformationApi.V1.Domain;
+using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.Infrastructure.Constants;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.Factories
 {
@@ -17,7 +15,7 @@ namespace EqualityInformationApi.V1.Factories
             {
                 CorrelationId = Guid.NewGuid(),
                 DateTime = DateTime.UtcNow,
-                EntityId = equalityInformation.Id,
+                EntityId = equalityInformation.TargetId,
                 Id = Guid.NewGuid(),
                 EventType = CreateEventConstants.EVENTTYPE,
                 Version = CreateEventConstants.V1VERSION,
@@ -31,6 +29,31 @@ namespace EqualityInformationApi.V1.Factories
                 EventData = new EventData
                 {
                     NewData = equalityInformation
+                }
+            };
+        }
+
+        public EntityEventSns Update(UpdateEntityResult<EqualityInformationDb> updateResult, Token token)
+        {
+            return new EntityEventSns
+            {
+                CorrelationId = Guid.NewGuid(),
+                DateTime = DateTime.UtcNow,
+                EntityId = updateResult.UpdatedEntity.TargetId,
+                Id = Guid.NewGuid(),
+                EventType = UpdateEventConstants.EVENTTYPE,
+                Version = UpdateEventConstants.V1VERSION,
+                SourceDomain = UpdateEventConstants.SOURCEDOMAIN,
+                SourceSystem = UpdateEventConstants.SOURCESYSTEM,
+                User = new User
+                {
+                    Name = token.Name,
+                    Email = token.Email
+                },
+                EventData = new EventData
+                {
+                    NewData = updateResult.NewValues,
+                    OldData = updateResult.OldValues
                 }
             };
         }

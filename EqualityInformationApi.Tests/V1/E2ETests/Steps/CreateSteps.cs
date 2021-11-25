@@ -8,6 +8,7 @@ using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.Infrastructure.Constants;
 using FluentAssertions;
 using Hackney.Core.Sns;
+using Hackney.Core.Testing.Sns;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -35,7 +36,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
                 error.Value.ToString().Should().Contain(errorCode);
         }
 
-        public async Task WhenTheApiIsCalled(EqualityInformationObject request)
+        public async Task WhenTheApiIsCalledToCreate(EqualityInformationObject request)
         {
             var uri = new Uri($"api/v1/equality-information/", UriKind.Relative);
 
@@ -44,6 +45,24 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
 
             message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
             message.Method = HttpMethod.Post;
+
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
+
+            message.Dispose();
+        }
+
+        public async Task WhenTheApiIsCalledToGet(Guid targetId)
+        {
+            var uri = new Uri($"api/v1/equality-information/?targetId={targetId}", UriKind.Relative);
+
+            var message = new HttpRequestMessage(HttpMethod.Get, uri);
+            message.Headers.Add("Authorization", Token);
+
+            message.Method = HttpMethod.Get;
 
             _httpClient.DefaultRequestHeaders
                 .Accept
@@ -70,17 +89,19 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             databaseResponse.Should().BeEquivalentTo(responseContent);
         }
 
-        public async Task ThenTheEqualityInformationCreatedEventIsRaised(EqualityInformationFixture fixture, SnsEventVerifier<EntityEventSns> snsVerifer)
+        public async Task ThenTheEqualityInformationCreatedEventIsRaised(EqualityInformationFixture fixture, ISnsFixture snsFixture)
         {
             var responseContent = DecodeResponse<EqualityInformationDb>(_lastResponse);
 
-            var databaseResponse = await fixture.DbContext.LoadAsync<EqualityInformationDb>(responseContent.TargetId, responseContent.Id).ConfigureAwait(false);
+            var databaseResponse = await fixture.DbFixture.DynamoDbContext
+                                                .LoadAsync<EqualityInformationDb>(responseContent.TargetId, responseContent.Id)
+                                                .ConfigureAwait(false);
 
             Action<EntityEventSns> verifyFunc = (actual) =>
             {
                 actual.CorrelationId.Should().NotBeEmpty();
-                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 2000);
-                actual.EntityId.Should().Be(databaseResponse.Id);
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 5000);
+                actual.EntityId.Should().Be(databaseResponse.TargetId);
 
                 var expected = databaseResponse.ToDomain();
                 var actualNewData = JsonSerializer.Deserialize<EqualityInformation>(actual.EventData.NewData.ToString(), CreateJsonOptions());
@@ -97,7 +118,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
                 actual.Version.Should().Be(CreateEventConstants.V1VERSION);
             };
 
-            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsVerifer = snsFixture.GetSnsEventVerifier<EntityEventSns>();
+            (await snsVerifer.VerifySnsEventRaised<EntityEventSns>(verifyFunc)).Should().BeTrue(snsVerifer.LastException?.Message);
         }
 
         public async Task ThenTheValidationErrorsAreReturned(List<KeyValuePair<string, string>> expectedErrors)

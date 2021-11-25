@@ -4,8 +4,8 @@ using EqualityInformationApi.Tests.V1.E2ETests.Steps;
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Boundary.Request.Validation;
 using EqualityInformationApi.V1.Domain;
-using Hackney.Core.Sns;
 using Hackney.Core.Testing.DynamoDb;
+using Hackney.Core.Testing.Sns;
 using System;
 using System.Collections.Generic;
 using TestStack.BDDfy;
@@ -21,7 +21,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
     public class CreateTests : IDisposable
     {
         private readonly IDynamoDbFixture _dbFixture;
-        private readonly SnsEventVerifier<EntityEventSns> _snsVerifier;
+        private readonly ISnsFixture _snsFixture;
         private readonly EqualityInformationFixture _testFixture;
         private readonly CreateSteps _steps;
         private readonly Fixture _fixture = new Fixture();
@@ -29,8 +29,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         public CreateTests(MockWebApplicationFactory<Startup> startupFixture)
         {
             _dbFixture = startupFixture.DynamoDbFixture;
-            _snsVerifier = startupFixture.SnsVerifer;
-            _testFixture = new EqualityInformationFixture(_dbFixture.DynamoDbContext, startupFixture.SimpleNotificationService);
+            _snsFixture = startupFixture.SnsFixture;
+            _testFixture = new EqualityInformationFixture(_dbFixture, _snsFixture.SimpleNotificationService);
             _steps = new CreateSteps(startupFixture.Client);
         }
 
@@ -61,7 +61,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             request.TargetId = Guid.Empty;
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .BDDfy();
         }
@@ -82,7 +82,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             };
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .Then(t => _steps.ThenTheValidationErrorsAreReturned(errorInfo))
                 .BDDfy();
@@ -97,9 +97,9 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
                                   .Create();
 
             this.Given(g => _testFixture.GivenAnEntityDoesNotExist())
-                .When(w => _steps.WhenTheApiIsCalled(request))
-                .Then(t => _steps.ThenTheEntityIsReturned(_testFixture.DbContext))
-                .And(t => _steps.ThenTheEqualityInformationCreatedEventIsRaised(_testFixture, _snsVerifier))
+                .When(w => _steps.WhenTheApiIsCalledToCreate(request))
+                .Then(t => _steps.ThenTheEntityIsReturned(_dbFixture.DynamoDbContext))
+                .And(t => _steps.ThenTheEqualityInformationCreatedEventIsRaised(_testFixture, _snsFixture))
                 .BDDfy();
         }
     }

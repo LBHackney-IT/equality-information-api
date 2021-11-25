@@ -1,18 +1,13 @@
 using AutoFixture;
 using EqualityInformationApi.V1.Boundary.Request;
-using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Gateways;
-using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.UseCase;
 using FluentAssertions;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -60,7 +55,7 @@ namespace EqualityInformationApi.Tests.V1.UseCase
             var response = await _classUnderTest.Execute(request, token).ConfigureAwait(false);
 
             // Assert
-            response.Should().BeEquivalentTo(gatewayResponse);
+            response.Should().BeEquivalentTo(gatewayResponse.ToResponse());
 
             _mockSnsGateway.Verify(x => x.Publish(It.IsAny<EntityEventSns>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }

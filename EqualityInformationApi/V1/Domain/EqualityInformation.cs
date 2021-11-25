@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EqualityInformationApi.V1.Domain
 {
@@ -25,5 +23,6 @@ namespace EqualityInformationApi.V1.Domain
         public EconomicSituation EconomicSituation { get; set; }
         public HomeSituation HomeSituation { get; set; }
         public string ArmedForces { get; set; }
+        public int? VersionNumber { get; set; }
     }
 }

@@ -1,40 +1,12 @@
 using EqualityInformationApi.V1.Boundary.Request;
-using EqualityInformationApi.V1.Boundary.Response;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EqualityInformationApi.V1.Factories
 {
     public static class EntityFactory
     {
-        public static EqualityInformation ToDomain(this EqualityInformationObject request)
-        {
-            return new EqualityInformation
-            {
-                Id = Guid.NewGuid(),
-                TargetId = request.TargetId,
-                AgeGroup = request.AgeGroup,
-                Gender = request.Gender,
-                Nationality = request.Nationality,
-                Ethnicity = request.Ethnicity,
-                ReligionOrBelief = request.ReligionOrBelief,
-                SexualOrientation = request.SexualOrientation,
-                MarriageOrCivilPartnership = request.MarriageOrCivilPartnership,
-                PregnancyOrMaternity = request.PregnancyOrMaternity,
-                NationalInsuranceNumber = request.NationalInsuranceNumber,
-                Languages = request.Languages,
-                CaringResponsibilities = request.CaringResponsibilities,
-                Disabled = request.Disabled,
-                CommunicationRequirements = request.CommunicationRequirements,
-                EconomicSituation = request.EconomicSituation,
-                HomeSituation = request.HomeSituation,
-                ArmedForces = request.ArmedForces
-            };
-        }
-
         public static EqualityInformationDb ToDatabase(this EqualityInformation domain)
         {
             return new EqualityInformationDb
@@ -56,7 +28,8 @@ namespace EqualityInformationApi.V1.Factories
                 CommunicationRequirements = domain.CommunicationRequirements,
                 EconomicSituation = domain.EconomicSituation,
                 HomeSituation = domain.HomeSituation,
-                ArmedForces = domain.ArmedForces
+                ArmedForces = domain.ArmedForces,
+                VersionNumber = domain.VersionNumber
             };
         }
 
@@ -81,9 +54,34 @@ namespace EqualityInformationApi.V1.Factories
                 CommunicationRequirements = entity.CommunicationRequirements,
                 EconomicSituation = entity.EconomicSituation,
                 HomeSituation = entity.HomeSituation,
-                ArmedForces = entity.ArmedForces
+                ArmedForces = entity.ArmedForces,
+                VersionNumber = entity.VersionNumber
             };
         }
 
+        public static EqualityInformation ToDomain(this EqualityInformationObject request)
+        {
+            return new EqualityInformation
+            {
+                Id = request.TargetId == Guid.Empty ? Guid.NewGuid() : request.TargetId,
+                TargetId = request.TargetId,
+                AgeGroup = request.AgeGroup,
+                Gender = request.Gender,
+                Nationality = request.Nationality,
+                Ethnicity = request.Ethnicity,
+                ReligionOrBelief = request.ReligionOrBelief,
+                SexualOrientation = request.SexualOrientation,
+                MarriageOrCivilPartnership = request.MarriageOrCivilPartnership,
+                PregnancyOrMaternity = request.PregnancyOrMaternity,
+                NationalInsuranceNumber = request.NationalInsuranceNumber,
+                Languages = request.Languages,
+                CaringResponsibilities = request.CaringResponsibilities,
+                Disabled = request.Disabled,
+                CommunicationRequirements = request.CommunicationRequirements,
+                EconomicSituation = request.EconomicSituation,
+                HomeSituation = request.HomeSituation,
+                ArmedForces = request.ArmedForces
+            };
+        }
     }
 }
