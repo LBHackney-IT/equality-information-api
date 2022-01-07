@@ -115,7 +115,9 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Steps
             };
 
             var snsVerifer = snsFixture.GetSnsEventVerifier<EntityEventSns>();
-            (await snsVerifer.VerifySnsEventRaised<EntityEventSns>(verifyFunc)).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsResult = await snsVerifer.VerifySnsEventRaised(verifyFunc);
+            if (!snsResult && snsVerifer.LastException != null)
+                throw snsVerifer.LastException;
         }
 
         public void ThenBadRequestIsReturned()
