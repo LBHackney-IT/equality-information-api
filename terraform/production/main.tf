@@ -61,7 +61,7 @@ data "aws_ssm_parameter" "cloudwatch_topic_arn" {
 }
 
 module "api-alarm" {
-  source           = "git@github.com:LBHackney-IT/aws-hackney-common-terraform.git//modules/cloudwatch/api-alarm"
+  source           = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/cloudwatch/api-alarm"
   environment_name = var.environment_name
   api_name         = "equality-information-api"
   alarm_period     = "300"
