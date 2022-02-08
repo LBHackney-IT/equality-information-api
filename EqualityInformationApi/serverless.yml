@@ -183,7 +183,7 @@ resources:
 
 custom:
   associateWaf:
-    name: ReferenceApiWafAcl
+    name: EqualityInformationApiWafAcl
     version: V2  
   hostname:
     Fn::Join:
