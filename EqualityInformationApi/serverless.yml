@@ -183,7 +183,7 @@ resources:
 
 custom:
   associateWaf:
-    name: EqualityInformationApiWafAcl
+    name: Platform_APIs_Web_ACL
     version: V2  
   hostname:
     Fn::Join:
