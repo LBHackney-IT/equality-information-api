@@ -10,6 +10,9 @@ provider:
   stage: ${opt:stage}
   region: eu-west-2
 
+plugins:
+  - serverless-associate-waf
+
 package:
   artifact: ./bin/release/netcoreapp3.1/equality-information-api.zip
 
@@ -179,6 +182,9 @@ resources:
           DurationInSeconds: 0
 
 custom:
+  associateWaf:
+    name: Platform_APIs_Web_ACL
+    version: V2  
   hostname:
     Fn::Join:
       - '.'
