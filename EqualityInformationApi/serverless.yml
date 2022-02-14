@@ -12,6 +12,7 @@ provider:
 
 plugins:
   - serverless-associate-waf
+  - '@serverless/safeguards-plugin'
 
 package:
   artifact: ./bin/release/netcoreapp3.1/equality-information-api.zip
@@ -182,6 +183,10 @@ resources:
           DurationInSeconds: 0
 
 custom:
+  safeguards:
+    - title: Require authorizer
+      safeguard: require-authorizer
+      path: ./policies
   associateWaf:
     name: Platform_APIs_Web_ACL
     version: V2  
