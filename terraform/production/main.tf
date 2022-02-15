@@ -55,3 +55,16 @@ resource "aws_ssm_parameter" "equality_information_sns_arn" {
   type  = "String"
   value = aws_sns_topic.equalityInformation.arn
 }
+
+data "aws_ssm_parameter" "cloudwatch_topic_arn" {
+  name = "/housing-tl/${var.environment_name}/cloudwatch-alarms-topic-arn"
+}
+
+module "api-alarm" {
+  source           = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/cloudwatch/api-alarm"
+  environment_name = var.environment_name
+  api_name         = "equality-information-api"
+  alarm_period     = "300"
+  error_threshold  = "1"
+  sns_topic_arn    = data.aws_ssm_parameter.cloudwatch_topic_arn.value
+}
