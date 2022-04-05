@@ -30,6 +30,8 @@ RUN dotnet restore ./EqualityInformationApi.Tests/EqualityInformationApi.Tests.c
 # Copy everything else and build
 COPY . .
 
+RUN dotnet build -c Release -o out EqualityInformationApi/EqualityInformationApi.csproj
 RUN dotnet build -c debug -o out EqualityInformationApi.Tests/EqualityInformationApi.Tests.csproj
 
 CMD dotnet test
+RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}" 
