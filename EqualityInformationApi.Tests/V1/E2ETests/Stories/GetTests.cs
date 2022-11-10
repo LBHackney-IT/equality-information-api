@@ -37,7 +37,7 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
             if (disposing && !_disposed)
             {
                 _testFixture?.Dispose();
-                
+
                 _disposed = true;
             }
         }
