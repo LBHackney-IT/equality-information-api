@@ -36,11 +36,8 @@ namespace EqualityInformationApi.Tests.V1.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                if (null != _testFixture)
-                {
-                    _testFixture.Dispose();
-                }
-
+                _testFixture?.Dispose();
+                
                 _disposed = true;
             }
         }
