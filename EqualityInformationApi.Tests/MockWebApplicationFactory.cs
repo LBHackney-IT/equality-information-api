@@ -86,7 +86,7 @@ namespace EqualityInformationApi.Tests
                 DynamoDbFixture.EnsureTablesExist(_tables);
 
                 SnsFixture = serviceProvider.GetRequiredService<ISnsFixture>();
-                SnsFixture.CreateSnsTopic<EntityEventSns>("equalityInformation", "EQUALITY_INFORMATION_SNS_ARN");
+                SnsFixture.CreateSnsTopic<EntityEventSns>("equalityInformation.fifo", "EQUALITY_INFORMATION_SNS_ARN");
             });
         }
     }
