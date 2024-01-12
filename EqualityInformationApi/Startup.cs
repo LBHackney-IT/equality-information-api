@@ -41,6 +41,8 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using HeaderConstants = EqualityInformationApi.V1.Infrastructure.HeaderConstants;
 using CoreHeaderConstants = Hackney.Core.Middleware.HeaderConstants;
+using Hackney.Core.DynamoDb.EntityUpdater;
+using Hackney.Core.DynamoDb.EntityUpdater.Interfaces;
 
 namespace EqualityInformationApi
 {

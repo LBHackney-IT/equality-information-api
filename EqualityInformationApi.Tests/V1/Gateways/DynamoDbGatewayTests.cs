@@ -8,6 +8,8 @@ using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.Infrastructure.Exceptions;
 using FluentAssertions;
 using Force.DeepCloner;
+using Hackney.Core.DynamoDb.EntityUpdater;
+using Hackney.Core.DynamoDb.EntityUpdater.Interfaces;
 using Hackney.Core.Testing.DynamoDb;
 using Microsoft.Extensions.Logging;
 using Moq;

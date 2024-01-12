@@ -5,6 +5,7 @@ using EqualityInformationApi.V1.Gateways;
 using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.UseCase;
 using FluentAssertions;
+using Hackney.Core.DynamoDb.EntityUpdater;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using Moq;

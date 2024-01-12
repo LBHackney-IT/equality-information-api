@@ -4,6 +4,8 @@ using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.Infrastructure.Exceptions;
+using Hackney.Core.DynamoDb.EntityUpdater;
+using Hackney.Core.DynamoDb.EntityUpdater.Interfaces;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;

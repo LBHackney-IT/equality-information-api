@@ -1,5 +1,6 @@
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Infrastructure;
+using Hackney.Core.DynamoDb.EntityUpdater;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 
