@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 
     <NoWarn>$(NoWarn);1591;S101;CA1822;CA2234;CA2000;CA1051;CA1031;CA1062</NoWarn>
     <IsPackable>false</IsPackable>
@@ -26,7 +26,10 @@
     <PackageReference Include="Hackney.Core.Testing.DynamoDb" Version="1.57.0" />
     <PackageReference Include="Hackney.Core.Testing.Shared" Version="1.66.0" />
     <PackageReference Include="Hackney.Core.Testing.Sns" Version="1.71.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
