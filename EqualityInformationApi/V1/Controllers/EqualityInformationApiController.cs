@@ -93,7 +93,7 @@ namespace EqualityInformationApi.V1.Controllers
             if (response.VersionNumber.HasValue)
                 eTag = response.VersionNumber.ToString();
 
-            HttpContext.Response.Headers.Add(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{eTag}\"").Tag);
+            HttpContext.Response.Headers.Append(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{eTag}\"").Tag);
 
             return Ok(response.ToResponse());
         }
