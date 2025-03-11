@@ -4,6 +4,7 @@ using EqualityInformationApi.V1.Factories;
 using EqualityInformationApi.V1.Infrastructure;
 using EqualityInformationApi.V1.Infrastructure.Constants;
 using FluentAssertions;
+using Hackney.Core.DynamoDb.EntityUpdater;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using System;
