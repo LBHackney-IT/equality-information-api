@@ -54,7 +54,7 @@ commands:
           name: plan
           command: |
             cd ./terraform/<<parameters.environment>>/
-            terraform plan -out=plan.out
+            terraform plan -destroy -out=plan.out
       - persist_to_workspace:
           root: *workspace_root
           paths:
@@ -128,7 +128,7 @@ commands:
             cd ./EqualityInformationApi/
             npm i serverless-associate-waf
             npm i @serverless/safeguards-plugin --save-dev
-            npx --yes serverless@^4 deploy --stage <<parameters.stage>> --conceal
+            npx --yes serverless@^4 remove --stage <<parameters.stage>>
 
 jobs:
   check-code-formatting:
