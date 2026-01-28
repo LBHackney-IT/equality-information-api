@@ -52,7 +52,7 @@ functions:
           method: GET
           private: false
 resources:
-  Conditions:
+  #Conditions:
     # Only create the Canaries for staging/prod
     # IsProdDeployment:
     #   Fn::Equals:
