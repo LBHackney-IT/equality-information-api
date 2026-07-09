@@ -1,6 +1,7 @@
 using EqualityInformationApi.V1.Boundary.Request;
 using EqualityInformationApi.V1.Domain;
 using EqualityInformationApi.V1.Infrastructure;
+using Hackney.Core.DynamoDb.EntityUpdater;
 using System;
 using System.Threading.Tasks;
 
