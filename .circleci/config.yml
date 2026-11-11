@@ -152,7 +152,7 @@ jobs:
           command: docker-compose build equality-information-api-test
       - run:
           name: Run tests
-          command: docker-compose run -T equality-information-api-test
+          command: docker-compose run equality-information-api-test
   assume-role-development:
     executor: docker-python
     steps:
