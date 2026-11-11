@@ -24,7 +24,7 @@
     <PackageReference Include="coverlet.msbuild" Version="3.0.3" />
     <PackageReference Include="DeepCloner" Version="0.10.3" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Hackney.Core.Testing.DynamoDb" Version="1.57.0" />
+    <PackageReference Include="Hackney.Core.Testing.DynamoDb" Version="1.86.0" />
     <PackageReference Include="Hackney.Core.Testing.Shared" Version="1.66.0" />
     <PackageReference Include="Hackney.Core.Testing.Sns" Version="1.71.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
