@@ -8,7 +8,6 @@
     <IsTestProject>true</IsTestProject>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1510</WarningsNotAsErrors>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
   </PropertyGroup>
   <ItemGroup>
@@ -33,8 +32,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.12" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Bogus" Version="25.0.4" />
     <PackageReference Include="Moq" Version="4.16.1" />

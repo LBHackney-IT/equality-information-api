@@ -3,9 +3,7 @@ using Hackney.Core.DynamoDb;
 using Hackney.Core.Sns;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Sns;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -28,6 +26,8 @@ namespace EqualityInformationApi.Tests
         };
 
 
+        private readonly ServiceProvider _fixtureServices;
+
         public IDynamoDbFixture DynamoDbFixture { get; private set; }
         public ISnsFixture SnsFixture { get; private set; }
         public HttpClient Client { get; private set; }
@@ -40,7 +40,28 @@ namespace EqualityInformationApi.Tests
             EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
 
-            Client = CreateClient();
+            var services = new ServiceCollection();
+            services.ConfigureDynamoDB();
+            services.ConfigureDynamoDbFixture();
+            services.ConfigureSns();
+            services.ConfigureSnsFixture();
+            _fixtureServices = services.BuildServiceProvider();
+
+            try
+            {
+                DynamoDbFixture = _fixtureServices.GetRequiredService<IDynamoDbFixture>();
+                DynamoDbFixture.EnsureTablesExist(_tables);
+
+                SnsFixture = _fixtureServices.GetRequiredService<ISnsFixture>();
+                SnsFixture.CreateSnsTopic<EntityEventSns>("equalityInformation.fifo", "EQUALITY_INFORMATION_SNS_ARN");
+
+                Client = CreateClient();
+            }
+            catch
+            {
+                _fixtureServices.Dispose();
+                throw;
+            }
         }
 
         private bool _disposed = false;
@@ -48,10 +69,7 @@ namespace EqualityInformationApi.Tests
         {
             if (disposing && !_disposed)
             {
-                if (DynamoDbFixture != null)
-                    DynamoDbFixture.Dispose();
-                if (null != SnsFixture)
-                    SnsFixture.Dispose();
+                _fixtureServices.Dispose();
                 if (Client != null)
                     Client.Dispose();
 
@@ -65,29 +83,6 @@ namespace EqualityInformationApi.Tests
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
                 Environment.SetEnvironmentVariable(name, defaultValue);
-        }
-
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.ConfigureAppConfiguration(b => b.AddEnvironmentVariables())
-                .UseStartup<TStartup>();
-
-            builder.ConfigureServices(services =>
-            {
-                services.ConfigureDynamoDB();
-                services.ConfigureDynamoDbFixture();
-
-                services.ConfigureSns();
-                services.ConfigureSnsFixture();
-
-                var serviceProvider = services.BuildServiceProvider();
-
-                DynamoDbFixture = serviceProvider.GetRequiredService<IDynamoDbFixture>();
-                DynamoDbFixture.EnsureTablesExist(_tables);
-
-                SnsFixture = serviceProvider.GetRequiredService<ISnsFixture>();
-                SnsFixture.CreateSnsTopic<EntityEventSns>("equalityInformation.fifo", "EQUALITY_INFORMATION_SNS_ARN");
-            });
         }
     }
 }

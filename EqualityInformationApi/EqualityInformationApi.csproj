@@ -10,7 +10,6 @@
       <NoWarn>$(NoWarn);1591;CA1308;CA2234;S3925;S112</NoWarn>
       <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
       <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-      <WarningsNotAsErrors>$(WarningsNotAsErrors);ASPDEPR008</WarningsNotAsErrors>
       <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
@@ -34,7 +33,6 @@
     <PackageReference Include="Hackney.Core.Validation" Version="1.56.0" />
     <PackageReference Include="Hackney.Core.Validation.AspNet" Version="1.53.0" />
     <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
