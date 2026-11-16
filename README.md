@@ -21,6 +21,8 @@ Base API is a boilerplate code for being reused for new APIs for LBH
 4. Rename the initial template.
 5. Open it in your IDE.
 
+The solution targets .NET 10. Install the .NET 10 SDK for local builds. Docker and CI also use .NET 10.
+
 ### Development
 
 To serve the application, run it using your IDE of choice, we use Visual Studio CE and JetBrains Rider on Mac.
